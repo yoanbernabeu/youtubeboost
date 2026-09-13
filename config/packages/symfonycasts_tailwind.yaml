@@ -1,0 +1,4 @@
+# The binary version is pinned on purpose: `tailwind:init` is interactive and
+# cannot run during a Docker build.
+symfonycasts_tailwind:
+    binary_version: 'v4.3.3'

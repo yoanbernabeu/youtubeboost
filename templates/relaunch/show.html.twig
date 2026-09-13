@@ -1,0 +1,165 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ 'relaunch.show.title'|trans({'%title%': video.title}) }}{% endblock %}
+{% block heading %}{{ 'relaunch.show.heading'|trans({'%date%': relaunch.appliedAt|date('d/m/Y')}) }}{% endblock %}
+{% block subheading %}
+    <p class="truncate text-xs text-muted-foreground">{{ video.title }}</p>
+{% endblock %}
+
+{% block header_actions %}
+    <twig:Button as="a" href="{{ path('app_video', { id: video.youtubeId }) }}" variant="outline" size="sm">
+        <twig:ux:icon name="lucide:chevron-left" data-icon="inline-start" />
+        <span class="hidden sm:inline">{{ 'relaunch.show.back_to_video'|trans }}</span>
+    </twig:Button>
+{% endblock %}
+
+{% block main %}
+<div class="mx-auto max-w-6xl space-y-6">
+
+    {% if relaunch.currentVerdict and relaunch.currentVerdict.suggestsRevert and relaunch.canBeReverted %}
+        <twig:Alert variant="destructive">
+            <twig:ux:icon name="lucide:trending-down" />
+            <twig:Alert:Title>{{ 'relaunch.show.alert.title'|trans }}</twig:Alert:Title>
+            <twig:Alert:Description>
+                {{ 'relaunch.show.alert.description'|trans }}
+            </twig:Alert:Description>
+        </twig:Alert>
+    {% endif %}
+
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title>{{ 'relaunch.show.compare.title'|trans }}</twig:Card:Title>
+            <twig:Card:Description>
+                {% if relaunch.revertedAt %}
+                    {{ 'relaunch.show.reverted_on'|trans({'%date%': relaunch.revertedAt|date('d/m/Y'), '%time%': relaunch.revertedAt|date('H:i')}) }}
+                {% else %}
+                    {{ relaunch.status.label|trans }}
+                {% endif %}
+            </twig:Card:Description>
+            <twig:Card:Action>
+                <div class="flex items-center gap-2">
+                    <twig:VerdictBadge verdict="{{ relaunch.currentVerdict ? relaunch.currentVerdict.value : null }}" final="{{ relaunch.verdictFinal }}" />
+                    {% if relaunch.canBeReverted %}
+                        <form method="post" action="{{ path('app_relaunch_revert', { id: relaunch.id }) }}"
+                              data-controller="confirm" data-action="submit->confirm#ask"
+                              data-confirm-message-value="{{ 'relaunch.show.revert.confirm'|trans }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                            <twig:Button type="submit" variant="destructive">
+                                <twig:ux:icon name="lucide:undo-2" data-icon="inline-start" />
+                                {{ 'relaunch.show.revert.action'|trans }}
+                                <span class="ml-1 rounded bg-destructive/15 px-1 text-[0.7rem] font-normal tabular">{{ 'common.quota_units'|trans({'%count%': revertQuotaCost}) }}</span>
+                            </twig:Button>
+                        </form>
+                    {% endif %}
+                </div>
+            </twig:Card:Action>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <figure>
+                    <figcaption class="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{{ 'relaunch.show.archived_caption'|trans }}</figcaption>
+                    <img src="{{ path('app_image', { kind: 'archive', path: relaunch.archivedPath }) }}" alt="{{ 'relaunch.show.archived_alt'|trans }}"
+                         class="aspect-video w-full rounded-lg object-cover ring-1 ring-border">
+                </figure>
+                <figure>
+                    <figcaption class="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">{{ 'relaunch.show.applied_caption'|trans }}</figcaption>
+                    {% if relaunch.appliedImagePath %}
+                        <img src="{{ path('app_image', { kind: 'miniature', path: relaunch.appliedImagePath }) }}" alt="{{ 'relaunch.show.applied_alt'|trans }}"
+                             class="aspect-video w-full rounded-lg object-cover ring-2 ring-primary">
+                    {% else %}
+                        <div class="flex aspect-video w-full items-center justify-center rounded-lg bg-muted">
+                            <twig:ux:icon name="lucide:image" class="size-8 text-muted-foreground" />
+                        </div>
+                    {% endif %}
+                </figure>
+            </div>
+        </twig:Card:Content>
+    </twig:Card>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+        <twig:Card>
+            <twig:Card:Header>
+                <twig:Card:Title>{{ 'relaunch.show.milestones.title'|trans }}</twig:Card:Title>
+                <twig:Card:Description>
+                    {{ 'relaunch.show.milestones.description'|trans }}
+                </twig:Card:Description>
+            </twig:Card:Header>
+            <twig:Card:Content class="space-y-3">
+                {% for milestone in [{ days: 14, snapshot: relaunch.snapshotAt14, verdict: relaunch.verdictAt14 }, { days: 28, snapshot: relaunch.snapshotAt28, verdict: relaunch.verdictAt28 }] %}
+                    <twig:Item variant="outline">
+                        <twig:Item:Media>
+                            <twig:ux:icon name="{{ milestone.verdict ? 'lucide:circle-check' : 'lucide:hourglass' }}"
+                                          class="size-5 {{ milestone.verdict ? 'text-success' : 'text-muted-foreground' }}" />
+                        </twig:Item:Media>
+                        <twig:Item:Content>
+                            <twig:Item:Title>{{ 'relaunch.show.milestones.days'|trans({'%days%': milestone.days}) }}</twig:Item:Title>
+                            <twig:Item:Description>
+                                {% if milestone.snapshot %}
+                                    {{ 'relaunch.show.milestones.snapshot'|trans({'%views%': milestone.snapshot.viewsPerDay|decimal, '%days%': milestone.snapshot.days}) }}
+                                {% else %}
+                                    {{ 'relaunch.show.milestones.expected'|trans({'%date%': relaunch.milestoneEnd(milestone.days)|date('d/m/Y')}) }}
+                                {% endif %}
+                            </twig:Item:Description>
+                        </twig:Item:Content>
+                        <twig:Item:Actions>
+                            <twig:VerdictBadge verdict="{{ milestone.verdict ? milestone.verdict.value : null }}" final="{{ milestone.days == 28 }}" />
+                        </twig:Item:Actions>
+                    </twig:Item>
+                {% endfor %}
+            </twig:Card:Content>
+        </twig:Card>
+
+        <twig:Card>
+            <twig:Card:Header>
+                <twig:Card:Title>{{ 'relaunch.show.comparison.title'|trans }}</twig:Card:Title>
+                <twig:Card:Description>{{ 'relaunch.show.comparison.description'|trans({'%days%': relaunch.snapshotBefore.days}) }}</twig:Card:Description>
+            </twig:Card:Header>
+            <twig:Card:Content>
+                {% if beforeAfterChart %}
+                    <div class="h-60">{{ render_chart(beforeAfterChart) }}</div>
+                {% else %}
+                    <p class="py-8 text-center text-sm text-muted-foreground">{{ 'relaunch.show.comparison.empty'|trans }}</p>
+                {% endif %}
+            </twig:Card:Content>
+            {% if comparison %}
+                <twig:Card:Footer>
+                    <dl class="grid w-full grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-4 text-sm sm:grid-cols-4">
+                        <div>
+                            <dt class="text-xs text-muted-foreground">{{ 'relaunch.metric.views_per_day'|trans }}</dt>
+                            <dd class="font-semibold tabular">{{ comparison.viewsVariation|variation }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-muted-foreground">{{ 'relaunch.metric.ctr'|trans }}</dt>
+                            <dd class="font-semibold tabular">{{ (comparison.clickThroughRateRatio is null ? null : (comparison.clickThroughRateRatio - 1) * 100)|variation }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-muted-foreground">{{ 'relaunch.metric.impressions'|trans }}</dt>
+                            <dd class="font-semibold tabular">{{ (comparison.impressionsRatio is null ? null : (comparison.impressionsRatio - 1) * 100)|variation }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-muted-foreground">{{ 'relaunch.metric.average_duration'|trans }}</dt>
+                            <dd class="font-semibold tabular">{{ (comparison.averageViewDurationRatio is null ? null : (comparison.averageViewDurationRatio - 1) * 100)|variation }}</dd>
+                        </div>
+                    </dl>
+                </twig:Card:Footer>
+            {% endif %}
+        </twig:Card>
+    </div>
+
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:chart-line" class="size-4 text-muted-foreground" />
+                {{ 'relaunch.show.views.title'|trans }}
+            </twig:Card:Title>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            {% if chart %}
+                <div class="h-72">{{ render_chart(chart) }}</div>
+            {% else %}
+                <p class="py-8 text-center text-sm text-muted-foreground">{{ 'relaunch.show.views.empty'|trans }}</p>
+            {% endif %}
+        </twig:Card:Content>
+    </twig:Card>
+</div>
+{% endblock %}

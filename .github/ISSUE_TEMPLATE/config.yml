@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/yoanbernabeu/youtubeboost/security/advisories/new
+    about: Report it privately here, never in a public issue.
+  - name: Installation help
+    url: https://github.com/yoanbernabeu/youtubeboost/blob/main/README.md
+    about: Most setup problems come from the Google Cloud console. The README walks through it step by step.

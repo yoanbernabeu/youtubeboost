@@ -1,0 +1,23 @@
+{# @prop variant 'default'|'destructive'|'warning'|'success' The visual style variant. #}
+{# @block content The alert content, typically includes `Alert:Title` and `Alert:Description`. #}
+{%- props variant = 'default' -%}
+{%- set style = html_cva(
+    base: "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left rtl:text-start text-sm has-data-[slot=alert-action]:relative ltr:has-data-[slot=alert-action]:pr-18 rtl:has-data-[slot=alert-action]:pe-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
+    variants: {
+        variant: {
+            default: 'bg-card text-card-foreground',
+            destructive: 'bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current',
+            warning: 'border-warm/40 bg-warm/10 text-warm-foreground dark:text-warm *:data-[slot=alert-description]:opacity-90 *:[svg]:text-current',
+            success: 'border-success/40 bg-success/10 text-success dark:text-success *:data-[slot=alert-description]:opacity-90 *:[svg]:text-current',
+        },
+    },
+) -%}
+
+<div
+    data-slot="alert"
+    role="alert"
+    class="{{ style.apply({variant: variant}, attributes.render('class'))|tailwind_merge }}"
+    {{ attributes }}
+>
+    {%- block content %}{% endblock -%}
+</div>

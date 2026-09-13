@@ -1,0 +1,85 @@
+name: Bug report
+description: Something behaves differently from what the README or the interface promises.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please do **not** paste API keys, OAuth tokens or
+        the contents of your `.env.local` anywhere in this issue.
+
+        If this is a security issue, close this page and read
+        [SECURITY.md](https://github.com/yoanbernabeu/youtubeboost/blob/main/SECURITY.md)
+        instead.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what the application did instead of what you expected.
+      placeholder: |
+        I clicked "Analyse" on a video published in 2021. The job stayed at
+        "Reading the transcript" for ten minutes, then failed with …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        `docker compose logs --tail=200 app worker`, or the contents of
+        `var/log/dev.log`. Redact anything that looks like a key or a token.
+      render: text
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The tag you are running, or the output of `git rev-parse --short HEAD`.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: locale
+    attributes:
+      label: Interface language
+      options:
+        - English
+        - French
+    validations:
+      required: true
+
+  - type: input
+    id: catalogue-size
+    attributes:
+      label: Roughly how many videos in the catalogue
+      description: Some failures only show up at a few hundred videos.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues.
+          required: true
+        - label: This issue contains no API key, token, password or personal data.
+          required: true

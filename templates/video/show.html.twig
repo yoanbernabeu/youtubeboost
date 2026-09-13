@@ -1,0 +1,244 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ 'video.page_title'|trans({'%title%': video.title}) }}{% endblock %}
+{% block heading %}{{ video.title }}{% endblock %}
+{% block subheading %}
+    <p class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+        <span>{{ 'video.meta.published'|trans({'%age%': video.publishedAt|age}) }}</span>
+        <span aria-hidden="true">·</span>
+        <span>{{ video.durationSeconds|duration }}</span>
+        <span aria-hidden="true">·</span>
+        <span class="tabular">{{ 'video.meta.views'|trans({'%count%': video.viewCount, '%total%': video.viewCount|views}) }}</span>
+    </p>
+{% endblock %}
+
+{% block header_actions %}
+    <twig:Button as="a" href="https://www.youtube.com/watch?v={{ video.youtubeId }}" target="_blank" rel="noopener" variant="outline" size="sm">
+        <twig:ux:icon name="lucide:external-link" data-icon="inline-start" />
+        <span class="hidden sm:inline">{{ 'video.action.watch_on_youtube'|trans }}</span>
+    </twig:Button>
+{% endblock %}
+
+{% block main %}
+<div class="mx-auto max-w-7xl space-y-6">
+
+    <div class="grid gap-6 lg:grid-cols-3">
+        {# Current thumbnail and score #}
+        <twig:Card class="lg:col-span-1">
+            <twig:Card:Header>
+                <twig:Card:Title>{{ 'video.thumbnail.heading'|trans }}</twig:Card:Title>
+                <twig:Card:Description>
+                    {% if video.customThumbnail is same as(false) %}
+                        {{ 'video.thumbnail.auto_generated'|trans }}
+                    {% else %}
+                        {{ 'video.thumbnail.as_shown'|trans }}
+                    {% endif %}
+                </twig:Card:Description>
+            </twig:Card:Header>
+            <twig:Card:Content class="space-y-4">
+                {% if video.thumbnails.best %}
+                    <img src="{{ video.thumbnails.best }}" alt="{{ 'video.thumbnail.alt'|trans }}" class="aspect-video w-full rounded-lg object-cover ring-1 ring-border">
+                {% else %}
+                    <div class="flex aspect-video w-full items-center justify-center rounded-lg bg-muted">
+                        <twig:ux:icon name="lucide:image" class="size-8 text-muted-foreground" />
+                    </div>
+                {% endif %}
+
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ 'video.score.label'|trans }}</p>
+                        <p class="mt-1 flex items-center gap-2">
+                            <twig:ScoreBadge score="{{ video.score }}" reliable="{{ video.scoreReliable }}" size="lg" />
+                            <span class="text-xs text-muted-foreground">
+                                {% if video.score >= 70 %}{{ 'video.score.priority'|trans }}
+                                {% elseif video.score >= 45 %}{{ 'video.score.interesting'|trans }}
+                                {% elseif video.score > 0 %}{{ 'video.score.low'|trans }}
+                                {% else %}{{ 'video.score.out'|trans }}
+                                {% endif %}
+                            </span>
+                        </p>
+                    </div>
+                    <twig:SignalBars :signals="video.signals.toArray" />
+                </div>
+
+                {% if video.scoredAt %}
+                    <p class="text-xs text-muted-foreground">{{ 'video.score.computed_on'|trans({'%date%': video.scoredAt|date('d/m/Y')}) }}</p>
+                {% endif %}
+            </twig:Card:Content>
+
+            {% if video.type.value != 'standard' or video.typeSource.value != 'analytics' %}
+                <twig:Card:Footer class="flex-col items-stretch gap-2">
+                    <p class="text-xs text-muted-foreground">
+                        {{ 'video.type_source.detected'|trans({
+                            '%type%': ('video.type.' ~ video.type.value)|trans,
+                            '%source%': ('video.type_source.' ~ video.typeSource.value)|trans,
+                        })|raw }}
+                    </p>
+                    <form method="post" action="{{ path('app_video_type', { id: video.youtubeId }) }}" class="flex gap-1.5">
+                        <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                        <twig:Select name="type" class="h-7 text-xs">
+                            <option value="standard" {{ video.type.value == 'standard' ? 'selected' : '' }}>{{ 'video.type.standard'|trans }}</option>
+                            <option value="short" {{ video.type.value == 'short' ? 'selected' : '' }}>{{ 'video.type.short'|trans }}</option>
+                            <option value="live" {{ video.type.value == 'live' ? 'selected' : '' }}>{{ 'video.type.live'|trans }}</option>
+                        </twig:Select>
+                        <twig:Button type="submit" size="sm" variant="outline">{{ 'video.type_source.submit'|trans }}</twig:Button>
+                    </form>
+                </twig:Card:Footer>
+            {% endif %}
+        </twig:Card>
+
+        {# Score breakdown #}
+        <twig:Card class="lg:col-span-2">
+            <twig:Card:Header>
+                <twig:Card:Title>{{ 'video.breakdown.heading'|trans }}</twig:Card:Title>
+                <twig:Card:Description>
+                    {% if referenceDate %}
+                        {{ 'video.breakdown.description_until'|trans({'%days%': parameters.windowDays, '%date%': referenceDate|date('d/m/Y')}) }}
+                    {% else %}
+                        {{ 'video.breakdown.description'|trans({'%days%': parameters.windowDays}) }}
+                    {% endif %}
+                </twig:Card:Description>
+            </twig:Card:Header>
+            <twig:Card:Content>
+                <ul class="space-y-3">
+                    {% for name, value in video.signals.toArray %}
+                        <li>
+                            <div class="flex items-baseline justify-between gap-3">
+                                <p class="text-sm font-medium">{{ signal_label(name) }}</p>
+                                <p class="shrink-0 text-sm font-semibold tabular {{ value is null ? 'text-muted-foreground' : '' }}">
+                                    {{ value is null ? 'video.signal.no_data'|trans : 'video.signal.out_of_100'|trans({'%value%': (value * 100)|round}) }}
+                                </p>
+                            </div>
+                            <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                                {% if value is not null %}
+                                    <div class="h-full rounded-full {{ value >= 0.66 ? 'bg-hot' : (value >= 0.33 ? 'bg-warm' : 'bg-muted-foreground/50') }}"
+                                         style="width: {{ max(2, (value * 100)|round) }}%"></div>
+                                {% endif %}
+                            </div>
+                            <p class="mt-1 text-xs text-muted-foreground">{{ signal_explanation(name) }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </twig:Card:Content>
+            <twig:Card:Footer>
+                <div class="grid w-full grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-4 text-sm sm:grid-cols-4">
+                    <div>
+                        <p class="text-xs text-muted-foreground">{{ 'video.stats.views_per_day'|trans }}</p>
+                        <p class="font-semibold tabular">{{ stats.viewsPerDay|decimal }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-muted-foreground">{{ 'video.stats.best_period'|trans }}</p>
+                        <p class="font-semibold tabular">{{ stats.bestViewsPerDay|decimal }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-muted-foreground">{{ 'video.stats.impressions'|trans }}</p>
+                        <p class="font-semibold tabular">{{ stats.impressions|views }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-muted-foreground">{{ 'video.stats.ctr'|trans }}</p>
+                        <p class="font-semibold tabular">{{ stats.clickThroughRate|percent(2) }}</p>
+                    </div>
+                </div>
+            </twig:Card:Footer>
+        </twig:Card>
+    </div>
+
+    {# Views over time #}
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:chart-line" class="size-4 text-muted-foreground" />
+                {{ 'video.chart.heading'|trans }}
+            </twig:Card:Title>
+            <twig:Card:Description>
+                {% if stats.retainedShare is not null %}
+                    {{ 'video.chart.retained'|trans({'%share%': stats.retainedShare|percent(0)}) }}
+                {% else %}
+                    {{ 'video.chart.no_history'|trans }}
+                {% endif %}
+            </twig:Card:Description>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            {% if chart %}
+                <div class="h-72">{{ render_chart(chart) }}</div>
+            {% else %}
+                <p class="py-8 text-center text-sm text-muted-foreground">{{ 'video.chart.empty'|trans }}</p>
+            {% endif %}
+        </twig:Card:Content>
+    </twig:Card>
+
+    {{ component('AnalysisPanel', { videoId: video.youtubeId }) }}
+
+    {% if analysis %}
+        {{ component('ProposalGrid', { analysisId: analysis.id }) }}
+    {% endif %}
+
+    {# Transcript #}
+    {% if transcript %}
+        <twig:Card>
+            <twig:Card:Header>
+                <twig:Card:Title class="flex items-center gap-2">
+                    <twig:ux:icon name="lucide:file-text" class="size-4 text-muted-foreground" />
+                    {{ 'video.transcript.heading'|trans }}
+                </twig:Card:Title>
+                <twig:Card:Description>
+                    {% if transcript.usable %}
+                        {{ 'video.transcript.meta'|trans({
+                            '%source%': ('video.transcript.source.' ~ transcript.source.value)|trans,
+                            '%language%': transcript.language,
+                            '%characters%': transcript.characterCount|views,
+                            '%date%': transcript.fetchedAt|date('d/m/Y'),
+                        }) }}
+                    {% else %}
+                        {{ transcript.unavailableReason|trans }}
+                    {% endif %}
+                </twig:Card:Description>
+            </twig:Card:Header>
+            {% if transcript.usable %}
+                <twig:Card:Content>
+                    <twig:Collapsible>
+                        <twig:Collapsible:Trigger>
+                            <twig:Button variant="outline" size="sm">
+                                <twig:ux:icon name="lucide:chevron-right" data-icon="inline-start" />
+                                {{ 'video.transcript.show'|trans }}
+                            </twig:Button>
+                        </twig:Collapsible:Trigger>
+                        <twig:Collapsible:Content>
+                            <p class="mt-3 max-h-80 overflow-y-auto rounded-lg bg-muted/50 p-3 text-sm leading-relaxed whitespace-pre-line">{{ transcript.text }}</p>
+                        </twig:Collapsible:Content>
+                    </twig:Collapsible>
+                </twig:Card:Content>
+            {% endif %}
+        </twig:Card>
+    {% endif %}
+
+    {# Relaunch history #}
+    {% if relaunches is not empty %}
+        <twig:Card>
+            <twig:Card:Header>
+                <twig:Card:Title class="flex items-center gap-2">
+                    <twig:ux:icon name="lucide:rocket" class="size-4 text-muted-foreground" />
+                    {{ 'video.relaunches.heading'|trans }}
+                </twig:Card:Title>
+            </twig:Card:Header>
+            <twig:Card:Content class="space-y-2">
+                {% for relaunch in relaunches %}
+                    <twig:Item variant="outline" as="a" href="{{ path('app_relaunch_show', { id: relaunch.id }) }}">
+                        <twig:Item:Media>
+                            <img src="{{ path('app_image', { kind: 'archive', path: relaunch.archivedPath }) }}" alt=""
+                                 class="aspect-video w-20 rounded object-cover">
+                        </twig:Item:Media>
+                        <twig:Item:Content>
+                            <twig:Item:Title>{{ 'video.relaunches.applied_on'|trans({'%date%': relaunch.appliedAt|date('d/m/Y'), '%time%': relaunch.appliedAt|date('H:i')}) }}</twig:Item:Title>
+                            <twig:Item:Description>{{ relaunch.status.label|trans }}</twig:Item:Description>
+                        </twig:Item:Content>
+                        <twig:Item:Actions>
+                            <twig:VerdictBadge verdict="{{ relaunch.currentVerdict ? relaunch.currentVerdict.value : null }}" final="{{ relaunch.verdictFinal }}" />
+                        </twig:Item:Actions>
+                    </twig:Item>
+                {% endfor %}
+            </twig:Card:Content>
+        </twig:Card>
+    {% endif %}
+</div>
+{% endblock %}

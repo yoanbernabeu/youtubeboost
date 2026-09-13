@@ -1,0 +1,277 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'onboarding.title'|trans }} — YoutubeBoost{% endblock %}
+
+{% block body %}
+{% set steps = [
+    { id: 'google', label: 'onboarding.steps.google'|trans, icon: 'lucide:youtube' },
+    { id: 'photos', label: 'onboarding.steps.photos'|trans, icon: 'lucide:camera' },
+    { id: 'style', label: 'onboarding.steps.style'|trans, icon: 'lucide:wand-sparkles' },
+] %}
+{% set stepIndex = { google: 0, photos: 1, style: 2 }[step] %}
+
+<div class="relative min-h-screen overflow-hidden px-4 py-10 sm:py-16">
+    <div class="pointer-events-none absolute -top-48 left-1/2 -z-10 h-96 w-[52rem] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" aria-hidden="true"></div>
+
+    <div class="mx-auto w-full max-w-2xl">
+        <div class="mb-10 flex flex-col items-center gap-3 text-center">
+            <div class="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+                <twig:ux:icon name="lucide:play" class="size-5" />
+            </div>
+            <h1 class="text-2xl font-semibold tracking-tight sm:text-3xl">{{ 'onboarding.heading'|trans }}</h1>
+            <p class="max-w-md text-sm text-muted-foreground">
+                {{ 'onboarding.intro'|trans }}
+            </p>
+        </div>
+
+        {# Stepper #}
+        <ol class="mb-8 flex items-center justify-center gap-2 sm:gap-4" aria-label="{{ 'onboarding.progress_label'|trans }}">
+            {% for index, item in steps %}
+                {% set state = index < stepIndex ? 'done' : (index == stepIndex ? 'current' : 'todo') %}
+                <li class="flex items-center gap-2 sm:gap-4">
+                    <span class="flex items-center gap-2">
+                        <span class="flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold
+                            {{ state == 'done' ? 'bg-success text-success-foreground'
+                             : (state == 'current' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground') }}">
+                            {% if state == 'done' %}
+                                <twig:ux:icon name="lucide:check" class="size-3.5" />
+                            {% else %}
+                                {{ index + 1 }}
+                            {% endif %}
+                        </span>
+                        <span class="hidden text-sm font-medium sm:inline {{ state == 'todo' ? 'text-muted-foreground' : '' }}">{{ item.label }}</span>
+                    </span>
+                    {% if not loop.last %}
+                        <span class="h-px w-6 bg-border sm:w-10" aria-hidden="true"></span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+
+        {% if not geminiConfigured %}
+            <twig:Alert variant="warning" class="mb-6">
+                <twig:ux:icon name="lucide:triangle-alert" />
+                <twig:Alert:Title>{{ 'settings.gemini_missing.title'|trans }}</twig:Alert:Title>
+                <twig:Alert:Description>
+                    {{ 'onboarding.gemini_missing.body'|trans|raw }}
+                </twig:Alert:Description>
+            </twig:Alert>
+        {% endif %}
+
+        {% if step == 'google' %}
+            {{ block('step_google') }}
+        {% elseif step == 'photos' %}
+            {{ block('step_photos') }}
+        {% else %}
+            {{ block('step_style') }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block step_google %}
+<twig:Card>
+    <twig:Card:Header>
+        <twig:Card:Title>{{ 'onboarding.google.title'|trans }}</twig:Card:Title>
+        <twig:Card:Description>
+            {{ 'onboarding.google.description'|trans }}
+        </twig:Card:Description>
+    </twig:Card:Header>
+
+    <twig:Card:Content class="space-y-4">
+        {% if not oauthConfigured %}
+            <twig:Alert variant="destructive">
+                <twig:ux:icon name="lucide:circle-alert" />
+                <twig:Alert:Title>{{ 'onboarding.google.credentials_missing.title'|trans }}</twig:Alert:Title>
+                <twig:Alert:Description>
+                    {{ 'onboarding.google.credentials_missing.body'|trans|raw }}
+                </twig:Alert:Description>
+            </twig:Alert>
+        {% endif %}
+
+        <twig:Alert>
+            <twig:ux:icon name="lucide:info" />
+            <twig:Alert:Title>{{ 'onboarding.google.checks.title'|trans }}</twig:Alert:Title>
+            <twig:Alert:Description>
+                <ul class="mt-1 list-disc space-y-1 pl-4">
+                    <li>{{ 'onboarding.google.checks.redirect_uri'|trans({'%uri%': redirectUri})|raw }}</li>
+                    <li>{{ 'onboarding.google.checks.production'|trans|raw }}</li>
+                </ul>
+            </twig:Alert:Description>
+        </twig:Alert>
+
+        {% if channel %}
+            <twig:Item variant="outline">
+                <twig:Item:Media>
+                    {% if channel.thumbnailUrl %}
+                        <img src="{{ channel.thumbnailUrl }}" alt="" class="size-9 rounded-full object-cover">
+                    {% else %}
+                        <twig:ux:icon name="lucide:youtube" class="size-5 text-muted-foreground" />
+                    {% endif %}
+                </twig:Item:Media>
+                <twig:Item:Content>
+                    <twig:Item:Title>{{ channel.title }}</twig:Item:Title>
+                    <twig:Item:Description>{{ 'onboarding.google.connected_on'|trans({'%date%': channel.connectedAt|date('common.date.short_time'|trans)}) }}</twig:Item:Description>
+                </twig:Item:Content>
+                <twig:Item:Actions>
+                    <twig:Badge variant="secondary">
+                        <twig:ux:icon name="lucide:badge-check" data-icon="inline-start" />
+                        {{ 'onboarding.google.connected_badge'|trans }}
+                    </twig:Badge>
+                </twig:Item:Actions>
+            </twig:Item>
+        {% endif %}
+    </twig:Card:Content>
+
+    <twig:Card:Footer class="flex-wrap gap-2">
+        <twig:Button as="a" href="{{ path('app_oauth_connect') }}" size="lg"
+                     aria-disabled="{{ oauthConfigured ? 'false' : 'true' }}"
+                     class="{{ oauthConfigured ? '' : 'pointer-events-none opacity-50' }}">
+            <twig:ux:icon name="lucide:youtube" data-icon="inline-start" />
+            {{ channel ? 'onboarding.google.reconnect'|trans : 'onboarding.google.connect'|trans }}
+        </twig:Button>
+        {% if channel %}
+            <twig:Button as="a" href="{{ path('app_onboarding', { etape: 'photos' }) }}" variant="outline" size="lg">
+                {{ 'onboarding.next_step'|trans }}
+                <twig:ux:icon name="lucide:arrow-right" data-icon="inline-end" />
+            </twig:Button>
+        {% endif %}
+    </twig:Card:Footer>
+</twig:Card>
+{% endblock %}
+
+{% block step_photos %}
+<twig:Card>
+    <twig:Card:Header>
+        <twig:Card:Title>{{ 'onboarding.photos.title'|trans }}</twig:Card:Title>
+        <twig:Card:Description>
+            {{ 'onboarding.photos.description'|trans }}
+        </twig:Card:Description>
+    </twig:Card:Header>
+
+    <twig:Card:Content class="space-y-5">
+        {% if missingAngles is not empty %}
+            <twig:Alert variant="warning">
+                <twig:ux:icon name="lucide:triangle-alert" />
+                <twig:Alert:Title>{{ 'onboarding.photos.missing_angles'|trans({'%count%': missingAngles|length}) }}</twig:Alert:Title>
+                <twig:Alert:Description>
+                    {% for angle in missingAngles %}{{ loop.first ? '' : ', ' }}{{ ('settings.angle.lower.' ~ angle.value)|trans }}{% endfor %}.
+                </twig:Alert:Description>
+            </twig:Alert>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_onboarding_photos') }}" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <twig:Field>
+                    <twig:Label for="angle">{{ 'settings.photos.angle_label'|trans }}</twig:Label>
+                    <twig:Select id="angle" name="angle">
+                        <option value="front">{{ 'settings.angle.front'|trans }}</option>
+                        <option value="right">{{ 'settings.angle.right'|trans }}</option>
+                        <option value="left">{{ 'settings.angle.left'|trans }}</option>
+                        <option value="other">{{ 'settings.angle.other_long'|trans }}</option>
+                    </twig:Select>
+                </twig:Field>
+
+                <twig:Field>
+                    <twig:Label for="label">{{ 'onboarding.photos.label_label'|trans }}</twig:Label>
+                    <twig:Input id="label" name="label" placeholder="{{ 'onboarding.photos.label_placeholder'|trans }}" maxlength="128" />
+                </twig:Field>
+            </div>
+
+            <twig:Field>
+                <twig:Label for="photos">{{ 'settings.photos.files_label'|trans }}</twig:Label>
+                <twig:Input type="file" id="photos" name="photos[]" multiple accept="image/jpeg,image/png,image/webp" required class="h-auto py-1.5" />
+                <twig:Field:Description>{{ 'onboarding.photos.files_help'|trans }}</twig:Field:Description>
+            </twig:Field>
+
+            <twig:Button type="submit">
+                <twig:ux:icon name="lucide:upload" data-icon="inline-start" />
+                {{ 'onboarding.photos.submit'|trans }}
+            </twig:Button>
+        </form>
+
+        {% if photos is not empty %}
+            <div>
+                <h3 class="mb-2 text-sm font-medium">{{ 'onboarding.photos.stored_count'|trans({'%count%': photos|length}) }}</h3>
+                <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {% for photo in photos %}
+                        <li class="group relative overflow-hidden rounded-lg ring-1 ring-border">
+                            <img src="{{ path('app_image', { kind: 'reference', path: photo.path }) }}" alt="{{ photo.label }}"
+                                 class="aspect-square w-full object-cover" loading="lazy">
+                            <span class="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/75 to-transparent px-2 pt-6 pb-1.5 text-xs font-medium text-white">
+                                {{ photo.label }}
+                            </span>
+                            {#
+                                Always visible rather than revealed on hover: a touch screen has no
+                                hover. The `destructive` variant is a soft tint meant for a solid
+                                surface, so over an arbitrary photo it carries its own dark chip and
+                                only turns red once pointed at.
+                            #}
+                            <form method="post" action="{{ path('app_onboarding_photo_delete', { id: photo.id }) }}"
+                                  class="absolute top-1.5 right-1.5"
+                                  data-controller="confirm" data-action="submit->confirm#ask"
+                                  data-confirm-message-value="{{ 'settings.photos.delete_confirm'|trans }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                                <twig:Button type="submit" size="icon-sm" variant="destructive"
+                                             aria-label="{{ 'onboarding.photos.delete_aria'|trans({'%label%': photo.label}) }}"
+                                             class="bg-black/65 text-white ring-1 ring-white/30 hover:bg-destructive hover:text-white focus-visible:bg-destructive focus-visible:text-white dark:bg-black/65 dark:text-white dark:hover:bg-destructive">
+                                    <twig:ux:icon name="lucide:trash-2" />
+                                </twig:Button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </twig:Card:Content>
+
+    <twig:Card:Footer class="flex-wrap gap-2">
+        <twig:Button as="a" href="{{ path('app_onboarding', { etape: 'style' }) }}" size="lg"
+                     class="{{ hasPhotos ? '' : 'pointer-events-none opacity-50' }}">
+            {{ 'onboarding.next_step'|trans }}
+            <twig:ux:icon name="lucide:arrow-right" data-icon="inline-end" />
+        </twig:Button>
+        <twig:Button as="a" href="{{ path('app_onboarding', { etape: 'google' }) }}" variant="ghost" size="lg">
+            <twig:ux:icon name="lucide:chevron-left" data-icon="inline-start" />
+            {{ 'common.back'|trans }}
+        </twig:Button>
+    </twig:Card:Footer>
+</twig:Card>
+{% endblock %}
+
+{% block step_style %}
+<twig:Card>
+    <twig:Card:Header>
+        <twig:Card:Title>{{ 'onboarding.style.title'|trans }}</twig:Card:Title>
+        <twig:Card:Description>
+            {{ 'onboarding.style.description'|trans }}
+        </twig:Card:Description>
+    </twig:Card:Header>
+
+    <twig:Card:Content>
+        <form method="post" action="{{ path('app_onboarding_style') }}" class="space-y-4" id="style-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+
+            <twig:Field>
+                <twig:Label for="styleGuidelines">{{ 'onboarding.style.field_label'|trans }}</twig:Label>
+                <twig:Textarea id="styleGuidelines" name="styleGuidelines" rows="9"
+                    placeholder="{{ 'onboarding.style.placeholder'|trans|raw }}">{{ styleGuidelines }}</twig:Textarea>
+                <twig:Field:Description>{{ 'onboarding.style.help'|trans }}</twig:Field:Description>
+            </twig:Field>
+        </form>
+    </twig:Card:Content>
+
+    <twig:Card:Footer class="flex-wrap gap-2">
+        <twig:Button type="submit" form="style-form" size="lg">
+            <twig:ux:icon name="lucide:check" data-icon="inline-start" />
+            {{ 'onboarding.style.finish'|trans }}
+        </twig:Button>
+        <twig:Button as="a" href="{{ path('app_onboarding', { etape: 'photos' }) }}" variant="ghost" size="lg">
+            <twig:ux:icon name="lucide:chevron-left" data-icon="inline-start" />
+            {{ 'common.back'|trans }}
+        </twig:Button>
+    </twig:Card:Footer>
+</twig:Card>
+{% endblock %}

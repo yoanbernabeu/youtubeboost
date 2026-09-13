@@ -1,0 +1,31 @@
+{# @prop variant 'default'|'outline' The visual style variant. #}
+{# @prop size 'default'|'sm'|'lg' The toggle group size. #}
+{# @prop type 'single'|'multiple' Whether only one or multiple items can be active. #}
+{# @prop spacing number Gap between toggle group items. #}
+{# @prop orientation 'horizontal'|'vertical' The layout direction. #}
+{# @prop disabled boolean Whether all items in the group are disabled. #}
+{# @block content The toggle items, typically multiple `ToggleGroup:Item` components. #}
+{%- props variant = 'default', size = 'default', type = 'multiple', spacing = 2, orientation = 'horizontal', disabled = false -%}
+{%- do provide('toggleGroup.variant', variant) -%}
+{%- do provide('toggleGroup.size', size) -%}
+{%- do provide('toggleGroup.spacing', spacing) -%}
+{%- do provide('toggleGroup.orientation', orientation) -%}
+{%- do provide('toggleGroup.disabled', disabled) -%}
+<div
+    role="group"
+    style="--gap: {{ spacing }}"
+    data-slot="toggle-group"
+    data-toggle-group-type-value="{{ type }}"
+    data-variant="{{ variant }}"
+    data-size="{{ size }}"
+    data-spacing="{{ spacing }}"
+    data-orientation="{{ orientation }}"
+    {{ orientation == 'horizontal' ? 'data-horizontal' }}
+    {{ orientation == 'vertical' ? 'data-vertical' }}
+    class="{{ ('group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch ' ~ attributes.render('class'))|tailwind_merge }}"
+    {{ attributes.defaults({
+        'data-controller': 'toggle-group',
+    }) }}
+>
+    {%- block content %}{% endblock -%}
+</div>

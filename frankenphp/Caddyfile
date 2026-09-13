@@ -1,0 +1,45 @@
+{
+	# The container does not need to trust its own local CA.
+	skip_install_trust
+
+	{$CADDY_GLOBAL_OPTIONS}
+
+	frankenphp {
+		{$FRANKENPHP_CONFIG}
+	}
+}
+
+{$CADDY_EXTRA_CONFIG}
+
+{$SERVER_NAME:localhost} {
+	log {
+		{$CADDY_SERVER_LOG_OPTIONS}
+	}
+
+	root /app/public
+	encode zstd br gzip
+
+	{$CADDY_SERVER_EXTRA_DIRECTIVES}
+
+	@phpRoute not file {path}
+	rewrite @phpRoute index.php
+
+	@frontController path index.php
+	php @frontController {
+		worker {
+			file ./public/index.php
+			{$FRANKENPHP_WORKER_CONFIG}
+		}
+	}
+
+	# Asset Mapper pre-compresses its output; let Caddy serve it as is.
+	@assets path /assets/*
+	file_server @assets {
+		precompressed zstd br gzip
+		hide *.php
+	}
+
+	file_server {
+		hide *.php
+	}
+}

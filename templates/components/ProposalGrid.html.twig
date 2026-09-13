@@ -1,0 +1,159 @@
+{% set analysis = this.analysis %}
+{% set proposals = this.proposals %}
+{% set working = this.working %}
+{% set applying = this.applying %}
+{% set readyCount = this.readyCount %}
+{% set applyQuotaCost = this.applyQuotaCost %}
+
+<div {{ attributes }} {% if working or applying %}data-poll="delay(2500)|$render"{% endif %}>
+    {% if analysis %}
+        <twig:Card>
+            <twig:Card:Header>
+                <twig:Card:Title class="flex items-center gap-2">
+                    <twig:ux:icon name="lucide:image" class="size-4 text-muted-foreground" />
+                    {{ 'thumbnail.grid.title'|trans }}
+                </twig:Card:Title>
+                <twig:Card:Description>
+                    {{ 'thumbnail.grid.ready_count'|trans({'%count%': readyCount, '%total%': proposals|length}) }}
+                    {% if working %}{{ 'thumbnail.grid.streaming'|trans }}{% endif %}
+                </twig:Card:Description>
+                <twig:Card:Action>
+                    <form method="post" action="{{ path('app_analysis_regenerate', { id: analysis.id }) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                        <twig:Button type="submit" variant="outline" size="sm">
+                            <twig:ux:icon name="lucide:refresh-cw" data-icon="inline-start" />
+                            {{ 'thumbnail.grid.regenerate_all'|trans }}
+                        </twig:Button>
+                    </form>
+                </twig:Card:Action>
+            </twig:Card:Header>
+
+            <twig:Card:Content>
+                <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {% for proposal in proposals %}
+                        {% set angle = analysis.getAngle(proposal.angleIndex) %}
+                        <article class="flex flex-col overflow-hidden rounded-xl ring-1 ring-border">
+                            <div class="relative bg-muted">
+                                {% if proposal.ready %}
+                                    <a href="{{ path('app_proposal_preview', { id: proposal.id }) }}" class="block">
+                                        <img src="{{ path('app_image', { kind: 'miniature', path: proposal.imagePath }) }}"
+                                             alt="{{ 'thumbnail.proposal_number'|trans({'%number%': proposal.angleIndex + 1}) }}"
+                                             class="aspect-video w-full object-cover">
+                                    </a>
+                                {% elseif proposal.status.value == 'failed' %}
+                                    <div class="flex aspect-video w-full flex-col items-center justify-center gap-2 p-4 text-center">
+                                        <twig:ux:icon name="lucide:circle-x" class="size-6 text-destructive" />
+                                        <p class="text-xs text-destructive">{{ proposal.errorMessage }}</p>
+                                    </div>
+                                {% else %}
+                                    <div class="flex aspect-video w-full items-center justify-center">
+                                        <twig:Spinner class="size-6 text-muted-foreground" />
+                                    </div>
+                                {% endif %}
+
+                                <span class="absolute left-2 top-2 rounded bg-background/90 px-1.5 py-0.5 text-xs font-semibold">
+                                    {{ proposal.angleIndex + 1 }}
+                                </span>
+                                {% if proposal.generation > 0 %}
+                                    <span class="absolute right-2 top-2">
+                                        <twig:Badge variant="secondary">v{{ proposal.generation + 1 }}</twig:Badge>
+                                    </span>
+                                {% endif %}
+                                {% if proposal.appliedAt %}
+                                    <span class="absolute right-2 bottom-2">
+                                        <twig:Badge variant="success"><twig:ux:icon name="lucide:badge-check" data-icon="inline-start" />{{ 'thumbnail.grid.applied_badge'|trans }}</twig:Badge>
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="flex flex-1 flex-col gap-3 p-3">
+                                <div>
+                                    <p class="font-semibold leading-tight">{{ proposal.overlayText }}</p>
+                                    {% if angle %}
+                                        <p class="mt-1 line-clamp-2 text-xs text-muted-foreground">{{ angle.sceneDescription }}</p>
+                                        <p class="mt-1 text-xs text-muted-foreground">
+                                            {{ 'thumbnail.grid.angle_line'|trans({
+                                                '%expression%': angle.faceExpression,
+                                                '%angle%': ('thumbnail.grid.angle.' ~ angle.referenceAngle.value)|trans,
+                                            }) }}
+                                        </p>
+                                    {% endif %}
+                                    {% if proposal.iterationInstruction %}
+                                        <p class="mt-1 text-xs italic text-muted-foreground">{{ 'thumbnail.quoted_instruction'|trans({'%instruction%': proposal.iterationInstruction}) }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mt-auto space-y-2">
+                                    {% if proposal.ready %}
+                                        <form method="post" action="{{ path('app_proposal_iterate', { id: proposal.id }) }}" class="flex gap-1.5">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                                            <twig:Input name="instruction" placeholder="{{ 'thumbnail.grid.iterate_placeholder'|trans }}" maxlength="400" class="h-7 text-xs" />
+                                            <twig:Button type="submit" size="icon-sm" variant="outline" aria-label="{{ 'thumbnail.grid.iterate_label'|trans }}">
+                                                <twig:ux:icon name="lucide:wand-sparkles" />
+                                            </twig:Button>
+                                        </form>
+
+                                        <div class="flex flex-wrap items-center gap-1.5">
+                                            {% if applying or proposal.appliedAt %}
+                                                <twig:Button size="sm" disabled="disabled">
+                                                    <twig:ux:icon name="lucide:upload" data-icon="inline-start" />
+                                                    {{ (proposal.appliedAt ? 'thumbnail.already_applied' : 'thumbnail.grid.applying')|trans }}
+                                                </twig:Button>
+                                            {% else %}
+                                                <form method="post" action="{{ path('app_proposal_apply', { id: proposal.id }) }}"
+                                                      data-controller="confirm" data-action="submit->confirm#ask"
+                                                      data-confirm-message-value="{{ 'thumbnail.apply.confirm'|trans }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                                                    <twig:Button type="submit" size="sm">
+                                                        <twig:ux:icon name="lucide:upload" data-icon="inline-start" />
+                                                        {{ 'thumbnail.grid.apply'|trans }}
+                                                        <span class="ml-1 rounded bg-primary-foreground/15 px-1 text-[0.7rem] font-normal tabular">{{ 'common.quota_units'|trans({'%count%': applyQuotaCost}) }}</span>
+                                                    </twig:Button>
+                                                </form>
+                                            {% endif %}
+
+                                            <twig:Button as="a" href="{{ path('app_proposal_preview', { id: proposal.id }) }}" variant="outline" size="sm">
+                                                <twig:ux:icon name="lucide:eye" data-icon="inline-start" />
+                                                {{ 'thumbnail.grid.compare'|trans }}
+                                            </twig:Button>
+
+                                            <twig:Button as="a" href="{{ path('app_proposal_download', { id: proposal.id }) }}" variant="ghost" size="icon-sm" aria-label="{{ 'thumbnail.grid.download_label'|trans }}">
+                                                <twig:ux:icon name="lucide:download" />
+                                            </twig:Button>
+                                        </div>
+
+                                        <p class="text-[0.7rem] text-muted-foreground tabular">{{ 'thumbnail.grid.file_info'|trans({'%size%': proposal.byteSize|weight}) }}</p>
+                                    {% elseif proposal.status.value == 'failed' %}
+                                        <form method="post" action="{{ path('app_proposal_regenerate', { id: proposal.id }) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                                            <twig:Button type="submit" size="sm" variant="outline">
+                                                <twig:ux:icon name="lucide:refresh-cw" data-icon="inline-start" />
+                                                {{ 'thumbnail.grid.retry'|trans }}
+                                            </twig:Button>
+                                        </form>
+                                    {% endif %}
+
+                                    <twig:Collapsible>
+                                        <twig:Collapsible:Trigger>
+                                            <twig:Button variant="ghost" size="xs" class="text-muted-foreground">
+                                                <twig:ux:icon name="lucide:file-text" data-icon="inline-start" />
+                                                {{ 'thumbnail.grid.show_prompt'|trans }}
+                                            </twig:Button>
+                                        </twig:Collapsible:Trigger>
+                                        <twig:Collapsible:Content>
+                                            <form method="post" action="{{ path('app_analysis_edit_prompt', { id: analysis.id, index: proposal.angleIndex }) }}" class="mt-2 space-y-2">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                                                <twig:Textarea name="imagePrompt" rows="6" class="text-xs font-mono">{{ angle ? angle.imagePrompt : proposal.prompt }}</twig:Textarea>
+                                                <twig:Button type="submit" size="xs" variant="outline">{{ 'thumbnail.grid.save_prompt'|trans }}</twig:Button>
+                                            </form>
+                                        </twig:Collapsible:Content>
+                                    </twig:Collapsible>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </twig:Card:Content>
+        </twig:Card>
+    {% endif %}
+</div>

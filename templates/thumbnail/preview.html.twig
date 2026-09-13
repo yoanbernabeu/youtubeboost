@@ -1,0 +1,173 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ 'thumbnail.preview.title'|trans({'%title%': video.title}) }}{% endblock %}
+{% block heading %}{{ 'thumbnail.preview.heading'|trans }}{% endblock %}
+{% block subheading %}
+    <p class="truncate text-xs text-muted-foreground">{{ video.title }}</p>
+{% endblock %}
+
+{% block header_actions %}
+    <twig:Button as="a" href="{{ path('app_video', { id: video.youtubeId }) }}" variant="outline" size="sm">
+        <twig:ux:icon name="lucide:chevron-left" data-icon="inline-start" />
+        <span class="hidden sm:inline">{{ 'thumbnail.preview.back'|trans }}</span>
+    </twig:Button>
+{% endblock %}
+
+{% block main %}
+{% set proposalUrl = path('app_image', { kind: 'miniature', path: proposal.imagePath }) %}
+
+<div class="mx-auto max-w-6xl space-y-6">
+
+    {# Side by side #}
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title>{{ 'thumbnail.preview.compare.title'|trans }}</twig:Card:Title>
+            <twig:Card:Description>{{ 'thumbnail.preview.compare.description'|trans({'%number%': proposal.angleIndex + 1}) }}</twig:Card:Description>
+            <twig:Card:Action>
+                <div class="flex flex-wrap gap-2">
+                    {% if proposal.appliedAt %}
+                        <twig:Button disabled="disabled">
+                            <twig:ux:icon name="lucide:badge-check" data-icon="inline-start" />
+                            {{ 'thumbnail.already_applied'|trans }}
+                        </twig:Button>
+                    {% else %}
+                        <form method="post" action="{{ path('app_proposal_apply', { id: proposal.id }) }}"
+                              data-controller="confirm" data-action="submit->confirm#ask"
+                              data-confirm-message-value="{{ 'thumbnail.apply.confirm'|trans }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                            <twig:Button type="submit">
+                                <twig:ux:icon name="lucide:upload" data-icon="inline-start" />
+                                {{ 'thumbnail.preview.apply'|trans }}
+                                <span class="ml-1 rounded bg-primary-foreground/15 px-1 text-[0.7rem] font-normal tabular">{{ 'common.quota_units'|trans({'%count%': applyQuotaCost}) }}</span>
+                            </twig:Button>
+                        </form>
+                    {% endif %}
+                    <twig:Button as="a" href="{{ path('app_proposal_download', { id: proposal.id }) }}" variant="outline">
+                        <twig:ux:icon name="lucide:download" data-icon="inline-start" />
+                        PNG 1280×720
+                    </twig:Button>
+                </div>
+            </twig:Card:Action>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <figure>
+                    <figcaption class="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{{ 'thumbnail.preview.current_caption'|trans }}</figcaption>
+                    {% if currentThumbnail %}
+                        <img src="{{ currentThumbnail }}" alt="{{ 'thumbnail.preview.current_alt'|trans }}" class="aspect-video w-full rounded-lg object-cover ring-1 ring-border">
+                    {% else %}
+                        <div class="flex aspect-video w-full items-center justify-center rounded-lg bg-muted">
+                            <twig:ux:icon name="lucide:image" class="size-8 text-muted-foreground" />
+                        </div>
+                    {% endif %}
+                </figure>
+                <figure>
+                    <figcaption class="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">{{ 'thumbnail.proposal_number'|trans({'%number%': proposal.angleIndex + 1}) }}</figcaption>
+                    <img src="{{ proposalUrl }}" alt="{{ 'thumbnail.proposal_number'|trans({'%number%': proposal.angleIndex + 1}) }}" class="aspect-video w-full rounded-lg object-cover ring-2 ring-primary">
+                </figure>
+            </div>
+        </twig:Card:Content>
+    </twig:Card>
+
+    {# Fake YouTube surfaces #}
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title>{{ 'thumbnail.preview.feed.title'|trans }}</twig:Card:Title>
+            <twig:Card:Description>{{ 'thumbnail.preview.feed.description'|trans }}</twig:Card:Description>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            <twig:Tabs defaultValue="mobile">
+                <twig:Tabs:List>
+                    <twig:Tabs:Trigger value="mobile">
+                        <twig:ux:icon name="lucide:smartphone" data-icon="inline-start" />
+                        {{ 'thumbnail.preview.feed.mobile'|trans }}
+                    </twig:Tabs:Trigger>
+                    <twig:Tabs:Trigger value="desktop">
+                        <twig:ux:icon name="lucide:monitor" data-icon="inline-start" />
+                        {{ 'thumbnail.preview.feed.desktop'|trans }}
+                    </twig:Tabs:Trigger>
+                    <twig:Tabs:Trigger value="sidebar">
+                        <twig:ux:icon name="lucide:list-filter" data-icon="inline-start" />
+                        {{ 'thumbnail.preview.feed.sidebar'|trans }}
+                    </twig:Tabs:Trigger>
+                </twig:Tabs:List>
+
+                {% set feedProps = {
+                    title: video.title,
+                    channel: channel ? channel.title : 'thumbnail.preview.feed.default_channel'|trans,
+                    views: video.viewCount|views,
+                    age: video.publishedAt|age,
+                    duration: video.durationSeconds|duration,
+                } %}
+
+                <twig:Tabs:Content value="mobile">
+                    <div class="flex flex-col gap-6 rounded-xl bg-muted/40 p-4 sm:flex-row sm:justify-center">
+                        <twig:FeedPreview variant="mobile" image="{{ proposalUrl }}" title="{{ feedProps.title }}" channel="{{ feedProps.channel }}" views="{{ feedProps.views }}" age="{{ feedProps.age }}" duration="{{ feedProps.duration }}" />
+                        {% if currentThumbnail %}
+                            <div class="opacity-60">
+                                <twig:FeedPreview variant="mobile" image="{{ currentThumbnail }}" title="{{ feedProps.title }}" channel="{{ feedProps.channel }}" views="{{ feedProps.views }}" age="{{ feedProps.age }}" duration="{{ feedProps.duration }}" />
+                            </div>
+                        {% endif %}
+                    </div>
+                </twig:Tabs:Content>
+
+                <twig:Tabs:Content value="desktop">
+                    <div class="grid gap-6 rounded-xl bg-muted/40 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <twig:FeedPreview variant="desktop" image="{{ proposalUrl }}" title="{{ feedProps.title }}" channel="{{ feedProps.channel }}" views="{{ feedProps.views }}" age="{{ feedProps.age }}" duration="{{ feedProps.duration }}" />
+                        {% if currentThumbnail %}
+                            <div class="opacity-60">
+                                <twig:FeedPreview variant="desktop" image="{{ currentThumbnail }}" title="{{ feedProps.title }}" channel="{{ feedProps.channel }}" views="{{ feedProps.views }}" age="{{ feedProps.age }}" duration="{{ feedProps.duration }}" />
+                            </div>
+                        {% endif %}
+                    </div>
+                </twig:Tabs:Content>
+
+                <twig:Tabs:Content value="sidebar">
+                    <div class="max-w-md space-y-4 rounded-xl bg-muted/40 p-4">
+                        <twig:FeedPreview variant="sidebar" image="{{ proposalUrl }}" title="{{ feedProps.title }}" channel="{{ feedProps.channel }}" views="{{ feedProps.views }}" age="{{ feedProps.age }}" duration="{{ feedProps.duration }}" />
+                        {% if currentThumbnail %}
+                            <div class="opacity-60">
+                                <twig:FeedPreview variant="sidebar" image="{{ currentThumbnail }}" title="{{ feedProps.title }}" channel="{{ feedProps.channel }}" views="{{ feedProps.views }}" age="{{ feedProps.age }}" duration="{{ feedProps.duration }}" />
+                            </div>
+                        {% endif %}
+                    </div>
+                </twig:Tabs:Content>
+            </twig:Tabs>
+        </twig:Card:Content>
+    </twig:Card>
+
+    {# Iteration history #}
+    {% if chain|length > 1 %}
+        <twig:Card>
+            <twig:Card:Header>
+                <twig:Card:Title>{{ 'thumbnail.preview.history.title'|trans }}</twig:Card:Title>
+                <twig:Card:Description>{{ 'thumbnail.preview.history.description'|trans }}</twig:Card:Description>
+            </twig:Card:Header>
+            <twig:Card:Content>
+                <ol class="grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                    {% for version in chain %}
+                        <li class="space-y-1.5">
+                            <img src="{{ path('app_image', { kind: 'miniature', path: version.imagePath }) }}" alt=""
+                                 class="aspect-video w-full rounded-lg object-cover ring-1 {{ version.id == proposal.id ? 'ring-2 ring-primary' : 'ring-border' }}">
+                            <p class="text-xs font-medium">{{ 'thumbnail.preview.history.version'|trans({'%number%': loop.index}) }}</p>
+                            {% if version.iterationInstruction %}
+                                <p class="text-xs italic text-muted-foreground">{{ 'thumbnail.quoted_instruction'|trans({'%instruction%': version.iterationInstruction}) }}</p>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+            </twig:Card:Content>
+        </twig:Card>
+    {% endif %}
+
+    {# Prompt used #}
+    <twig:Card size="sm">
+        <twig:Card:Header>
+            <twig:Card:Title>{{ 'thumbnail.preview.prompt.title'|trans }}</twig:Card:Title>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            <pre class="max-h-64 overflow-auto rounded-lg bg-muted/50 p-3 text-xs leading-relaxed whitespace-pre-wrap">{{ proposal.prompt }}</pre>
+        </twig:Card:Content>
+    </twig:Card>
+</div>
+{% endblock %}

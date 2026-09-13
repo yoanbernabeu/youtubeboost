@@ -1,0 +1,18 @@
+ux_icons:
+    icon_dir: '%kernel.project_dir%/assets/icons'
+    default_icon_attributes:
+        fill: 'none'
+        stroke: 'currentColor'
+        'stroke-width': '2'
+        'stroke-linecap': 'round'
+        'stroke-linejoin': 'round'
+    iconify:
+        # Icons are committed to the repository: a production container never
+        # calls out to the Iconify API.
+        on_demand: false
+
+when@dev:
+    ux_icons:
+        iconify:
+            on_demand: true
+            auto_lock: true

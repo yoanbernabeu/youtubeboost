@@ -1,0 +1,65 @@
+# Development overrides, applied automatically by `docker compose up`.
+services:
+  app:
+    image: ${IMAGES_PREFIX:-}youtubeboost-app-dev
+    build:
+      context: .
+      target: frankenphp_dev
+    volumes:
+      - ./:/app
+      - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
+      - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
+      # Keep var/ inside the container: much faster on macOS and Windows.
+      - /app/var
+      - app_share:/app/var/share
+      # The stylesheet is built by the tailwind container and read by this one.
+      - tailwind_build:/app/var/tailwind
+    environment:
+      APP_ENV: dev
+      SERVER_NAME: ${SERVER_NAME:-localhost}
+      DATABASE_URL: postgresql://app:!ChangeMe!@database:5432/app?serverVersion=16&charset=utf8
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      # The default watch globs ignore CSS, and Tailwind writes CSS.
+      FRANKENPHP_WORKER_CONFIG: |
+        watch /app
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    tty: true
+
+  worker:
+    image: ${IMAGES_PREFIX:-}youtubeboost-app-dev
+    build:
+      context: .
+      target: frankenphp_dev
+    volumes:
+      - ./:/app
+      - /app/var
+      - app_share:/app/var/share
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: postgresql://app:!ChangeMe!@database:5432/app?serverVersion=16&charset=utf8
+
+  # Rebuilds the stylesheet whenever a template changes.
+  tailwind:
+    image: ${IMAGES_PREFIX:-}youtubeboost-app-dev
+    build:
+      context: .
+      target: frankenphp_dev
+    entrypoint: []
+    command: ["php", "bin/console", "tailwind:build", "--watch"]
+    # The image health check probes the web server, which this container does not run.
+    healthcheck:
+      disable: true
+    volumes:
+      - ./:/app
+      - tailwind_build:/app/var/tailwind
+    tty: true
+
+  database:
+    environment:
+      POSTGRES_PASSWORD: "!ChangeMe!"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+volumes:
+  tailwind_build:

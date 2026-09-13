@@ -1,0 +1,23 @@
+# Production overrides:
+#   docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+services:
+  app:
+    image: ${IMAGES_PREFIX:-}youtubeboost-app
+    build:
+      context: .
+      target: frankenphp_prod
+    environment:
+      APP_ENV: prod
+
+  worker:
+    image: ${IMAGES_PREFIX:-}youtubeboost-app
+    build:
+      context: .
+      target: frankenphp_prod
+    environment:
+      APP_ENV: prod
+    # The five thumbnails of an analysis are five separate messages; several
+    # consumers let them be drawn at the same time. `SELECT ... FOR UPDATE SKIP
+    # LOCKED` on the Doctrine transport makes this safe.
+    deploy:
+      replicas: ${WORKER_REPLICAS:-3}

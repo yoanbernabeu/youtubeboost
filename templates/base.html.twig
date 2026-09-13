@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale|default('en') }}" class="h-full">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="light dark">
+        <title>{% block title %}YoutubeBoost{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,{{ 
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%23613ae0"/><path d="M26 20l18 12-18 12z" fill="%23fff"/></svg>'|url_encode 
+        }}">
+
+        {# Applied before first paint so the page never flashes white. #}
+        <script>
+            (function () {
+                try {
+                    var stored = localStorage.getItem('youtubeboost-theme');
+                    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if (stored === 'dark' || (stored === null && prefersDark)) {
+                        document.documentElement.classList.add('dark');
+                    }
+                } catch (e) {}
+            })();
+        </script>
+
+        {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+        {% endblock %}
+
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+
+        {% set frankenphp_hot_reload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
+        {% if frankenphp_hot_reload %}
+            <meta name="frankenphp-hot-reload:url" content="{{ frankenphp_hot_reload }}">
+            <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
+            <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
+        {% endif %}
+    </head>
+    <body class="min-h-full antialiased">
+        {% block body %}{% endblock %}
+        <twig:Sonner position="bottom-right" richColors closeButton duration="6000">
+            {% for type, messages in app.flashes(['success', 'error', 'warning', 'info']) %}
+                {% for message in messages %}
+                    <twig:Toast type="{{ type }}" title="{{ message|trans }}" />
+                {% endfor %}
+            {% endfor %}
+        </twig:Sonner>
+    </body>
+</html>

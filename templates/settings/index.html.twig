@@ -1,0 +1,327 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ 'settings.title'|trans }} — YoutubeBoost{% endblock %}
+{% block heading %}{{ 'settings.title'|trans }}{% endblock %}
+
+{% block main %}
+<div class="mx-auto max-w-4xl space-y-6">
+
+    {# Scoring #}
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:target" class="size-4 text-muted-foreground" />
+                {{ 'settings.scoring.title'|trans }}
+            </twig:Card:Title>
+            <twig:Card:Description>
+                {{ 'settings.scoring.description'|trans }}
+            </twig:Card:Description>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            <form method="post" action="{{ path('app_settings_scoring') }}" class="space-y-6" id="scoring-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    {% for signal in signals %}
+                        <twig:Field>
+                            <twig:Label for="weight-{{ signal.value }}">{{ signal_label(signal) }}</twig:Label>
+                            <twig:Input type="number" id="weight-{{ signal.value }}" name="weights[{{ signal.value }}]"
+                                        value="{{ weights.get(signal)|round }}" min="0" max="100" step="1" />
+                            <twig:Field:Description>{{ signal_explanation(signal) }}</twig:Field:Description>
+                        </twig:Field>
+                    {% endfor %}
+                </div>
+
+                <twig:Separator />
+
+                <div class="grid gap-4 sm:grid-cols-3">
+                    <twig:Field>
+                        <twig:Label for="minAgeDays">{{ 'settings.scoring.min_age.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="minAgeDays" name="minAgeDays" value="{{ parameters.minAgeDays }}" min="0" max="3650" />
+                        <twig:Field:Description>{{ 'settings.scoring.min_age.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+
+                    <twig:Field>
+                        <twig:Label for="windowDays">{{ 'settings.scoring.window.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="windowDays" name="windowDays" value="{{ parameters.windowDays }}" min="7" max="120" />
+                        <twig:Field:Description>{{ 'settings.scoring.window.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+
+                    <twig:Field>
+                        <twig:Label for="warmupDays">{{ 'settings.scoring.warmup.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="warmupDays" name="warmupDays" value="{{ parameters.warmupDays }}" min="0" max="365" />
+                        <twig:Field:Description>{{ 'settings.scoring.warmup.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+
+                    <twig:Field>
+                        <twig:Label for="ctrFloorRatio">{{ 'settings.scoring.ctr_floor.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="ctrFloorRatio" name="ctrFloorRatio" value="{{ parameters.ctrFloorRatio }}" min="0.05" max="0.95" step="0.05" />
+                        <twig:Field:Description>{{ 'settings.scoring.ctr_floor.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+
+                    <twig:Field>
+                        <twig:Label for="retentionTargetRatio">{{ 'settings.scoring.retention_target.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="retentionTargetRatio" name="retentionTargetRatio" value="{{ parameters.retentionTargetRatio }}" min="1.1" max="5" step="0.1" />
+                        <twig:Field:Description>{{ 'settings.scoring.retention_target.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+
+                    <twig:Field>
+                        <twig:Label for="relaunchCooldownDays">{{ 'settings.scoring.cooldown.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="relaunchCooldownDays" name="relaunchCooldownDays" value="{{ parameters.relaunchCooldownDays }}" min="0" max="365" />
+                        <twig:Field:Description>{{ 'settings.scoring.cooldown.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+                </div>
+            </form>
+        </twig:Card:Content>
+        <twig:Card:Footer>
+            <twig:Button type="submit" form="scoring-form">
+                <twig:ux:icon name="lucide:check" data-icon="inline-start" />
+                {{ 'settings.scoring.save'|trans }}
+            </twig:Button>
+        </twig:Card:Footer>
+    </twig:Card>
+
+    {# Style #}
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:wand-sparkles" class="size-4 text-muted-foreground" />
+                {{ 'settings.style.title'|trans }}
+            </twig:Card:Title>
+            <twig:Card:Description>{{ 'settings.style.description'|trans }}</twig:Card:Description>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            <form method="post" action="{{ path('app_settings_style') }}" id="style-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                <twig:Textarea name="styleGuidelines" rows="8">{{ styleGuidelines }}</twig:Textarea>
+            </form>
+        </twig:Card:Content>
+        <twig:Card:Footer>
+            <twig:Button type="submit" form="style-form">
+                <twig:ux:icon name="lucide:check" data-icon="inline-start" />
+                {{ 'settings.style.save'|trans }}
+            </twig:Button>
+        </twig:Card:Footer>
+    </twig:Card>
+
+    {# Reference photos #}
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:camera" class="size-4 text-muted-foreground" />
+                {{ 'settings.photos.title'|trans }}
+            </twig:Card:Title>
+            <twig:Card:Description>{{ 'settings.photos.description'|trans }}</twig:Card:Description>
+        </twig:Card:Header>
+        <twig:Card:Content class="space-y-5">
+            {% if missingAngles is not empty %}
+                <twig:Alert variant="warning">
+                    <twig:ux:icon name="lucide:triangle-alert" />
+                    <twig:Alert:Title>{{ 'settings.photos.missing_angles'|trans }}</twig:Alert:Title>
+                    <twig:Alert:Description>
+                        {% for angle in missingAngles %}{{ loop.first ? '' : ', ' }}{{ ('settings.angle.lower.' ~ angle.value)|trans }}{% endfor %}.
+                    </twig:Alert:Description>
+                </twig:Alert>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_settings_photos_add') }}" enctype="multipart/form-data" class="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                <twig:Field>
+                    <twig:Label for="new-angle">{{ 'settings.photos.angle_label'|trans }}</twig:Label>
+                    <twig:Select id="new-angle" name="angle">
+                        <option value="front">{{ 'settings.angle.front'|trans }}</option>
+                        <option value="right">{{ 'settings.angle.right'|trans }}</option>
+                        <option value="left">{{ 'settings.angle.left'|trans }}</option>
+                        <option value="other">{{ 'settings.angle.other'|trans }}</option>
+                    </twig:Select>
+                </twig:Field>
+                <twig:Field>
+                    <twig:Label for="new-photos">{{ 'settings.photos.files_label'|trans }}</twig:Label>
+                    <twig:Input type="file" id="new-photos" name="photos[]" multiple accept="image/jpeg,image/png,image/webp" required class="h-auto py-1.5" />
+                </twig:Field>
+                <twig:Button type="submit">
+                    <twig:ux:icon name="lucide:plus" data-icon="inline-start" />
+                    {{ 'settings.photos.add'|trans }}
+                </twig:Button>
+            </form>
+
+            {% if photos is not empty %}
+                <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {% for photo in photos %}
+                        <li class="overflow-hidden rounded-lg ring-1 ring-border">
+                            <img src="{{ path('app_image', { kind: 'reference', path: photo.path }) }}" alt="{{ photo.label }}"
+                                 class="aspect-square w-full object-cover" loading="lazy">
+                            <form method="post" action="{{ path('app_settings_photo_update', { id: photo.id }) }}" class="space-y-2 p-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                                <twig:Select name="angle" class="h-7 text-xs">
+                                    <option value="front" {{ photo.angle.value == 'front' ? 'selected' : '' }}>{{ 'settings.angle.front'|trans }}</option>
+                                    <option value="right" {{ photo.angle.value == 'right' ? 'selected' : '' }}>{{ 'settings.angle.right'|trans }}</option>
+                                    <option value="left" {{ photo.angle.value == 'left' ? 'selected' : '' }}>{{ 'settings.angle.left'|trans }}</option>
+                                    <option value="other" {{ photo.angle.value == 'other' ? 'selected' : '' }}>{{ 'settings.angle.other'|trans }}</option>
+                                </twig:Select>
+                                <twig:Input name="label" value="{{ photo.label }}" maxlength="128" class="h-7 text-xs" />
+                                <div class="flex items-center justify-between gap-2">
+                                    <twig:Button type="submit" size="xs" variant="outline">{{ 'common.save'|trans }}</twig:Button>
+                                    <span class="text-[0.65rem] text-muted-foreground tabular">{{ photo.byteSize|weight }}</span>
+                                </div>
+                            </form>
+                            <form method="post" action="{{ path('app_settings_photo_delete', { id: photo.id }) }}" class="border-t border-border p-2"
+                                  data-controller="confirm" data-action="submit->confirm#ask"
+                                  data-confirm-message-value="{{ 'settings.photos.delete_confirm'|trans }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                                <twig:Button type="submit" size="xs" variant="destructive" class="w-full">
+                                    <twig:ux:icon name="lucide:trash-2" data-icon="inline-start" />
+                                    {{ 'common.delete'|trans }}
+                                </twig:Button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </twig:Card:Content>
+    </twig:Card>
+
+    {# Models and thresholds #}
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:zap" class="size-4 text-muted-foreground" />
+                {{ 'settings.generation.title'|trans }}
+            </twig:Card:Title>
+            <twig:Card:Description>{{ 'settings.generation.description'|trans }}</twig:Card:Description>
+        </twig:Card:Header>
+        <twig:Card:Content>
+            {% if not geminiConfigured %}
+                <twig:Alert variant="warning" class="mb-4">
+                    <twig:ux:icon name="lucide:triangle-alert" />
+                    <twig:Alert:Title>{{ 'settings.gemini_missing.title'|trans }}</twig:Alert:Title>
+                    <twig:Alert:Description>
+                        {{ 'settings.gemini_missing.body'|trans|raw }}
+                    </twig:Alert:Description>
+                </twig:Alert>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_settings_generation') }}" class="space-y-6" id="generation-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <twig:Field>
+                        <twig:Label for="textModel">{{ 'settings.generation.text_model.label'|trans }}</twig:Label>
+                        <twig:Input id="textModel" name="textModel" value="{{ textModel }}" placeholder="{{ effectiveTextModel }}" maxlength="64" />
+                        <twig:Field:Description>{{ 'settings.generation.model_in_use'|trans({'%model%': effectiveTextModel})|raw }}</twig:Field:Description>
+                    </twig:Field>
+
+                    <twig:Field>
+                        <twig:Label for="imageModel">{{ 'settings.generation.image_model.label'|trans }}</twig:Label>
+                        <twig:Input id="imageModel" name="imageModel" value="{{ imageModel }}" placeholder="{{ effectiveImageModel }}" maxlength="64" />
+                        <twig:Field:Description>
+                            {{ 'settings.generation.model_in_use'|trans({'%model%': effectiveImageModel})|raw }}
+                            {% if imageConfigStyle %}· {{ 'settings.generation.ratio_syntax'|trans({'%style%': imageConfigStyle})|raw }}{% endif %}
+                        </twig:Field:Description>
+                    </twig:Field>
+
+                    <twig:Field>
+                        <twig:Label for="analyticsRequestDelayMs">{{ 'settings.generation.analytics_delay.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="analyticsRequestDelayMs" name="analyticsRequestDelayMs" value="{{ analyticsDelay }}" min="0" max="5000" step="50" />
+                        <twig:Field:Description>{{ 'settings.generation.analytics_delay.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+                </div>
+
+                <twig:Separator />
+
+                <div class="grid gap-4 sm:grid-cols-3">
+                    <twig:Field>
+                        <twig:Label for="successViewsRatio">{{ 'settings.verdict.success.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="successViewsRatio" name="successViewsRatio" value="{{ verdict.success }}" min="1" max="10" step="0.1" />
+                        <twig:Field:Description>{{ 'settings.verdict.success.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+                    <twig:Field>
+                        <twig:Label for="neutralFloorRatio">{{ 'settings.verdict.floor.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="neutralFloorRatio" name="neutralFloorRatio" value="{{ verdict.floor }}" min="0.1" max="0.99" step="0.05" />
+                        <twig:Field:Description>{{ 'settings.verdict.floor.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+                    <twig:Field>
+                        <twig:Label for="negativeCtrRatio">{{ 'settings.verdict.ctr.label'|trans }}</twig:Label>
+                        <twig:Input type="number" id="negativeCtrRatio" name="negativeCtrRatio" value="{{ verdict.ctr }}" min="0.1" max="1" step="0.05" />
+                        <twig:Field:Description>{{ 'settings.verdict.ctr.help'|trans }}</twig:Field:Description>
+                    </twig:Field>
+                </div>
+            </form>
+        </twig:Card:Content>
+        <twig:Card:Footer>
+            <twig:Button type="submit" form="generation-form">
+                <twig:ux:icon name="lucide:check" data-icon="inline-start" />
+                {{ 'common.save'|trans }}
+            </twig:Button>
+        </twig:Card:Footer>
+    </twig:Card>
+
+    {# Channel and quota #}
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:youtube" class="size-4 text-muted-foreground" />
+                {{ 'settings.channel.title'|trans }}
+            </twig:Card:Title>
+        </twig:Card:Header>
+        <twig:Card:Content class="space-y-4">
+            {% if channel %}
+                <twig:Item variant="outline">
+                    <twig:Item:Media>
+                        {% if channel.thumbnailUrl %}
+                            <img src="{{ channel.thumbnailUrl }}" alt="" class="size-9 rounded-full object-cover">
+                        {% else %}
+                            <twig:ux:icon name="lucide:youtube" class="size-5 text-muted-foreground" />
+                        {% endif %}
+                    </twig:Item:Media>
+                    <twig:Item:Content>
+                        <twig:Item:Title>{{ channel.title }}</twig:Item:Title>
+                        <twig:Item:Description>
+                            {{ 'settings.channel.connected_on'|trans({'%date%': channel.connectedAt|date('common.date.short'|trans)}) }}
+                            {% if channel.lastSyncedAt %}· {{ 'settings.channel.last_synced_on'|trans({'%date%': channel.lastSyncedAt|date('common.date.short_time'|trans)}) }}{% endif %}
+                            {% if channel.reportingJobId %}· {{ 'settings.channel.reporting_active'|trans }}{% else %}· {{ 'settings.channel.reporting_unavailable'|trans }}{% endif %}
+                        </twig:Item:Description>
+                    </twig:Item:Content>
+                    <twig:Item:Actions>
+                        <div class="flex gap-2">
+                            <twig:Button as="a" href="{{ path('app_oauth_connect') }}" variant="outline" size="sm">{{ 'settings.channel.reconnect'|trans }}</twig:Button>
+                            <form method="post" action="{{ path('app_oauth_disconnect') }}"
+                                  data-controller="confirm" data-action="submit->confirm#ask"
+                                  data-confirm-message-value="{{ 'settings.channel.disconnect_confirm'|trans }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                                <twig:Button type="submit" variant="destructive" size="sm">{{ 'settings.channel.disconnect'|trans }}</twig:Button>
+                            </form>
+                        </div>
+                    </twig:Item:Actions>
+                </twig:Item>
+            {% else %}
+                <twig:Alert variant="warning">
+                    <twig:ux:icon name="lucide:triangle-alert" />
+                    <twig:Alert:Title>{{ 'settings.channel.none.title'|trans }}</twig:Alert:Title>
+                    <twig:Alert:Description>
+                        {{ 'settings.channel.none.body'|trans({'%uri%': redirectUri})|raw }}
+                    </twig:Alert:Description>
+                </twig:Alert>
+                <twig:Button as="a" href="{{ path('app_oauth_connect') }}">
+                    <twig:ux:icon name="lucide:youtube" data-icon="inline-start" />
+                    {{ 'settings.channel.connect'|trans }}
+                </twig:Button>
+            {% endif %}
+
+            <div>
+                <div class="mb-1.5 flex items-baseline justify-between text-sm">
+                    <span class="font-medium">{{ 'settings.quota.title'|trans }}</span>
+                    <span class="tabular text-muted-foreground">{{ 'settings.quota.usage'|trans({'%used%': quota.used|views, '%limit%': quota.limit|views}) }}</span>
+                </div>
+                <twig:Progress value="{{ quota.usedPercent }}" class="w-full" />
+                <p class="mt-1.5 text-xs text-muted-foreground">
+                    {{ 'settings.quota.resets_at'|trans({'%date%': quota.resetsAt|date('common.date.day_time'|trans)}) }}
+                    {% if quotaBreakdown is not empty %}
+                        {{ 'settings.quota.today'|trans }} {% for endpoint, cost in quotaBreakdown %}{{ loop.first ? '' : ', ' }}<code class="font-mono">{{ endpoint }}</code> {{ cost|views }} {{ 'settings.quota.unit_abbrev'|trans }}{% endfor %}
+                    {% endif %}
+                </p>
+            </div>
+        </twig:Card:Content>
+    </twig:Card>
+</div>
+{% endblock %}

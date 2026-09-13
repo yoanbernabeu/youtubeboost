@@ -1,0 +1,237 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ 'catalog.title'|trans }}{% endblock %}
+{% block heading %}{{ 'catalog.heading'|trans }}{% endblock %}
+{% block subheading %}
+    <p class="truncate text-xs text-muted-foreground">
+        {{ (filter.active ? 'catalog.subheading.filtered' : 'catalog.subheading.ranked')|trans({'%count%': total, '%total%': total|views}) }}
+    </p>
+{% endblock %}
+
+{% block main %}
+<div class="mx-auto max-w-7xl space-y-6">
+
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <twig:Stat label="{{ 'catalog.stats.synced'|trans }}" value="{{ statistics.total|views }}" icon="lucide:library"
+                   hint="{{ 'catalog.stats.synced_hint'|trans({'%total%': statistics.standard|views}) }}" />
+        <twig:Stat label="{{ 'catalog.stats.scored'|trans }}" value="{{ statistics.scored|views }}" icon="lucide:target"
+                   hint="{{ 'catalog.stats.scored_hint'|trans }}" />
+        <twig:Stat label="{{ 'catalog.stats.tracking'|trans }}" value="{{ relaunchStatistics.tracking|views }}" icon="lucide:hourglass"
+                   hint="{{ 'catalog.stats.tracking_hint'|trans }}" />
+        <twig:Stat label="{{ 'catalog.stats.successful'|trans }}" value="{{ relaunchStatistics.successful|views }}" icon="lucide:trending-up"
+                   hint="{{ 'catalog.stats.successful_hint'|trans({'%count%': relaunchStatistics.negative, '%total%': relaunchStatistics.negative|views}) }}" />
+    </div>
+
+    {% if channel and not hasImpressionData %}
+        <twig:Alert>
+            <twig:ux:icon name="lucide:info" />
+            <twig:Alert:Title>{{ 'catalog.impressions_notice.title'|trans }}</twig:Alert:Title>
+            <twig:Alert:Description>
+                {{ 'catalog.impressions_notice.body'|trans({'%date%': channel.connectedAt|date('d/m/Y')}) }}
+            </twig:Alert:Description>
+        </twig:Alert>
+    {% endif %}
+
+    {{ component('SyncPanel') }}
+
+    {# Filters #}
+    <form method="get" action="{{ path('app_catalog') }}" class="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <twig:Field class="lg:col-span-2">
+                <twig:Label for="q">{{ 'catalog.filters.search'|trans }}</twig:Label>
+                <twig:InputGroup>
+                    <twig:InputGroup:Addon>
+                        <twig:ux:icon name="lucide:search" class="size-4" />
+                    </twig:InputGroup:Addon>
+                    <twig:InputGroup:Input id="q" name="q" value="{{ filter.search|default('') }}" placeholder="{{ 'catalog.filters.search_placeholder'|trans }}" />
+                </twig:InputGroup>
+            </twig:Field>
+
+            <twig:Field>
+                <twig:Label for="min_score">{{ 'catalog.filters.min_score'|trans }}</twig:Label>
+                <twig:Select id="min_score" name="min_score">
+                    {% for threshold in [0, 20, 40, 60, 70, 80] %}
+                        <option value="{{ threshold }}" {{ filter.minScore == threshold ? 'selected' : '' }}>
+                            {{ threshold == 0 ? 'catalog.filters.any'|trans : 'catalog.filters.min_score_option'|trans({'%score%': threshold}) }}
+                        </option>
+                    {% endfor %}
+                </twig:Select>
+            </twig:Field>
+
+            <twig:Field>
+                <twig:Label for="statut">{{ 'catalog.filters.relaunch_state'|trans }}</twig:Label>
+                <twig:Select id="statut" name="statut">
+                    <option value="">{{ 'catalog.filters.any'|trans }}</option>
+                    {% for state in relaunchStates %}
+                        <option value="{{ state.value }}" {{ filter.relaunchState == state ? 'selected' : '' }}>{{ ('catalog.filters.state.' ~ state.value)|trans }}</option>
+                    {% endfor %}
+                </twig:Select>
+            </twig:Field>
+
+            <twig:Field>
+                <twig:Label for="age">{{ 'catalog.filters.age'|trans }}</twig:Label>
+                <twig:Select id="age" name="age">
+                    {% set ageRanges = {
+                        '': 'catalog.filters.any',
+                        '60-': 'catalog.filters.age_range.over_2_months',
+                        '180-': 'catalog.filters.age_range.over_6_months',
+                        '365-': 'catalog.filters.age_range.over_1_year',
+                        '-365': 'catalog.filters.age_range.under_1_year',
+                        '-180': 'catalog.filters.age_range.under_6_months',
+                    } %}
+                    {% for value, key in ageRanges %}
+                        <option value="{{ value }}" {{ currentAgeRange == value ? 'selected' : '' }}>{{ key|trans }}</option>
+                    {% endfor %}
+                </twig:Select>
+            </twig:Field>
+
+            <twig:Field>
+                <twig:Label for="tri">{{ 'catalog.filters.sort'|trans }}</twig:Label>
+                <twig:Select id="tri" name="tri">
+                    {% for value in ['score', 'recent', 'oldest', 'views', 'title'] %}
+                        <option value="{{ value }}" {{ filter.sortOrFallback == value ? 'selected' : '' }}>{{ ('catalog.filters.sort_by.' ~ value)|trans }}</option>
+                    {% endfor %}
+                </twig:Select>
+            </twig:Field>
+        </div>
+
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <label class="flex items-center gap-2 text-sm text-muted-foreground">
+                {% if filter.includeIneligible %}
+                    <twig:Checkbox name="tout" value="1" checked="checked" />
+                {% else %}
+                    <twig:Checkbox name="tout" value="1" />
+                {% endif %}
+                {{ 'catalog.filters.include_ineligible'|trans }}
+            </label>
+
+            <div class="flex items-center gap-2">
+                {% if filter.active %}
+                    <twig:Button as="a" href="{{ path('app_catalog') }}" variant="ghost" size="sm">{{ 'catalog.filters.reset'|trans }}</twig:Button>
+                {% endif %}
+                <twig:Button type="submit" size="sm">
+                    <twig:ux:icon name="lucide:list-filter" data-icon="inline-start" />
+                    {{ 'catalog.filters.submit'|trans }}
+                </twig:Button>
+            </div>
+        </div>
+    </form>
+
+    {# Results #}
+    {% if videos is empty %}
+        <twig:Empty class="border">
+            <twig:Empty:Media variant="icon">
+                <twig:ux:icon name="lucide:library" class="size-6" />
+            </twig:Empty:Media>
+            <twig:Empty:Title>{{ 'catalog.empty.title'|trans }}</twig:Empty:Title>
+            <twig:Empty:Description>
+                {% if statistics.total == 0 %}
+                    {{ 'catalog.empty.never_synced'|trans }}
+                {% else %}
+                    {{ 'catalog.empty.no_match'|trans }}
+                {% endif %}
+            </twig:Empty:Description>
+        </twig:Empty>
+    {% else %}
+        <div class="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+            <div class="overflow-x-auto">
+                <twig:Table>
+                    <twig:Table:Header>
+                        <twig:Table:Row>
+                            <twig:Table:Head class="w-[4.5rem]">{{ 'catalog.table.thumbnail'|trans }}</twig:Table:Head>
+                            <twig:Table:Head>{{ 'catalog.table.video'|trans }}</twig:Table:Head>
+                            <twig:Table:Head class="w-24 text-right">{{ 'catalog.table.score'|trans }}</twig:Table:Head>
+                            <twig:Table:Head class="w-28">{{ 'catalog.table.signals'|trans }}</twig:Table:Head>
+                            <twig:Table:Head class="w-28 text-right">{{ 'catalog.table.views'|trans }}</twig:Table:Head>
+                            <twig:Table:Head class="w-24">{{ 'catalog.table.age'|trans }}</twig:Table:Head>
+                            <twig:Table:Head class="w-36">{{ 'catalog.table.status'|trans }}</twig:Table:Head>
+                        </twig:Table:Row>
+                    </twig:Table:Header>
+                    <twig:Table:Body>
+                        {% for video in videos %}
+                            {% set url = path('app_video', { id: video.youtubeId }) %}
+                            <twig:Table:Row class="group cursor-pointer" data-href="{{ url }}">
+                                <twig:Table:Cell>
+                                    <a href="{{ url }}" class="block" tabindex="-1" aria-hidden="true">
+                                        {% if video.thumbnails.preview %}
+                                            <img src="{{ video.thumbnails.preview }}" alt="" loading="lazy"
+                                                 class="aspect-video w-16 rounded object-cover ring-1 ring-border">
+                                        {% else %}
+                                            <span class="flex aspect-video w-16 items-center justify-center rounded bg-muted">
+                                                <twig:ux:icon name="lucide:image" class="size-4 text-muted-foreground" />
+                                            </span>
+                                        {% endif %}
+                                    </a>
+                                </twig:Table:Cell>
+
+                                <twig:Table:Cell>
+                                    <a href="{{ url }}" class="font-medium group-hover:underline">{{ video.title }}</a>
+                                    <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                                        <span>{{ video.durationSeconds|duration }}</span>
+                                        {% if video.type.value != 'standard' %}
+                                            <twig:Badge variant="outline">{{ ('video.type.' ~ video.type.value)|trans }}</twig:Badge>
+                                        {% endif %}
+                                        {% if video.visibility.value != 'public' %}
+                                            <twig:Badge variant="outline">{{ ('video.visibility.' ~ video.visibility.value)|trans }}</twig:Badge>
+                                        {% endif %}
+                                        {% if video.lastAnalyzedAt %}
+                                            <span class="inline-flex items-center gap-1">
+                                                <twig:ux:icon name="lucide:sparkles" class="size-3" />
+                                                {{ 'catalog.badge.analysed'|trans }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </twig:Table:Cell>
+
+                                <twig:Table:Cell class="text-right">
+                                    <twig:ScoreBadge score="{{ video.score }}" reliable="{{ video.scoreReliable }}" />
+                                </twig:Table:Cell>
+
+                                <twig:Table:Cell>
+                                    <twig:SignalBars :signals="video.signals.toArray" />
+                                </twig:Table:Cell>
+
+                                <twig:Table:Cell class="text-right tabular">{{ video.viewCount|views }}</twig:Table:Cell>
+
+                                <twig:Table:Cell class="text-muted-foreground">{{ video.publishedAt|age }}</twig:Table:Cell>
+
+                                <twig:Table:Cell>
+                                    {% if video.relaunchState.value == 'tracking' %}
+                                        <twig:Badge variant="warm"><twig:ux:icon name="lucide:hourglass" data-icon="inline-start" />{{ 'catalog.status.tracking'|trans }}</twig:Badge>
+                                    {% elseif video.relaunchState.value == 'finished' %}
+                                        <twig:Badge variant="success"><twig:ux:icon name="lucide:badge-check" data-icon="inline-start" />{{ 'catalog.status.relaunched'|trans }}</twig:Badge>
+                                    {% elseif video.relaunchState.value == 'reverted' %}
+                                        <twig:Badge variant="secondary"><twig:ux:icon name="lucide:undo-2" data-icon="inline-start" />{{ 'catalog.status.reverted'|trans }}</twig:Badge>
+                                    {% else %}
+                                        <span class="text-xs text-muted-foreground">—</span>
+                                    {% endif %}
+                                </twig:Table:Cell>
+                            </twig:Table:Row>
+                        {% endfor %}
+                    </twig:Table:Body>
+                </twig:Table>
+            </div>
+        </div>
+
+        {% if pages > 1 %}
+            <nav class="flex items-center justify-between" aria-label="{{ 'catalog.pagination.label'|trans }}">
+                <p class="text-sm text-muted-foreground">{{ 'catalog.pagination.page'|trans({'%page%': page, '%pages%': pages}) }}</p>
+                <div class="flex gap-2">
+                    {% if page > 1 %}
+                        <twig:Button as="a" variant="outline" size="sm" href="{{ path('app_catalog', app.request.query.all|merge({ page: page - 1 })) }}">
+                            <twig:ux:icon name="lucide:chevron-left" data-icon="inline-start" />
+                            {{ 'catalog.pagination.previous'|trans }}
+                        </twig:Button>
+                    {% endif %}
+                    {% if page < pages %}
+                        <twig:Button as="a" variant="outline" size="sm" href="{{ path('app_catalog', app.request.query.all|merge({ page: page + 1 })) }}">
+                            {{ 'catalog.pagination.next'|trans }}
+                            <twig:ux:icon name="lucide:chevron-right" data-icon="inline-end" />
+                        </twig:Button>
+                    {% endif %}
+                </div>
+            </nav>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

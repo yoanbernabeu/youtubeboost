@@ -1,0 +1,76 @@
+{% set video = this.video %}
+{% set analysis = this.analysis %}
+{% set job = this.job %}
+{% set running = this.running %}
+{% set quotaCost = this.quotaCost %}
+{% set transcriptWarning = this.transcriptWarning %}
+
+<div {{ attributes }} {% if running %}data-poll="delay(2000)|$render"{% endif %}>
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:sparkles" class="size-4 text-muted-foreground" />
+                {{ 'analysis.panel.title'|trans }}
+            </twig:Card:Title>
+            <twig:Card:Description>
+                {% if analysis %}
+                    {{ 'analysis.panel.analysed_on'|trans({
+                        '%date%': analysis.createdAt|date('d/m/Y'),
+                        '%time%': analysis.createdAt|date('H:i'),
+                        '%model%': '<code class="font-mono">' ~ analysis.model|e ~ '</code>',
+                    })|raw }}
+                {% else %}
+                    {{ 'analysis.panel.intro'|trans }}
+                {% endif %}
+            </twig:Card:Description>
+            <twig:Card:Action>
+                {% if running %}
+                    <twig:Button disabled="disabled" variant="outline">
+                        <twig:ux:icon name="lucide:loader-circle" class="animate-spin" data-icon="inline-start" />
+                        {{ 'analysis.panel.running'|trans }}
+                    </twig:Button>
+                {% elseif video %}
+                    <form method="post" action="{{ path('app_analysis_start', { id: video.youtubeId }) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+                        <twig:Button type="submit" variant="{{ analysis ? 'outline' : 'default' }}">
+                            <twig:ux:icon name="lucide:sparkles" data-icon="inline-start" />
+                            {{ (analysis ? 'analysis.panel.relaunch' : 'analysis.panel.start')|trans }}
+                            <span class="ml-1 rounded bg-foreground/10 px-1 text-[0.7rem] font-normal tabular">{{ 'common.quota_units'|trans({'%count%': quotaCost}) }}</span>
+                        </twig:Button>
+                    </form>
+                {% endif %}
+            </twig:Card:Action>
+        </twig:Card:Header>
+
+        {% if job and (running or job.status.value == 'failed') %}
+            <twig:Card:Content>
+                <twig:JobProgress :job="job" />
+            </twig:Card:Content>
+        {% endif %}
+
+        {% if analysis %}
+            <twig:Card:Content class="space-y-4">
+                {% if not analysis.transcriptUsed %}
+                    <twig:Alert variant="warning">
+                        <twig:ux:icon name="lucide:triangle-alert" />
+                        <twig:Alert:Title>{{ 'analysis.panel.no_transcript.title'|trans }}</twig:Alert:Title>
+                        <twig:Alert:Description>
+                            {{ (transcriptWarning ?? 'analysis.panel.no_transcript.default')|trans }}
+                        </twig:Alert:Description>
+                    </twig:Alert>
+                {% endif %}
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{{ 'analysis.panel.summary'|trans }}</h3>
+                        <p class="text-sm leading-relaxed">{{ analysis.summary }}</p>
+                    </div>
+                    <div>
+                        <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{{ 'analysis.panel.promise'|trans }}</h3>
+                        <p class="text-sm leading-relaxed">{{ analysis.promise }}</p>
+                    </div>
+                </div>
+            </twig:Card:Content>
+        {% endif %}
+    </twig:Card>
+</div>

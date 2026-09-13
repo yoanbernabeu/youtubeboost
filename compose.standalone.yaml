@@ -1,0 +1,104 @@
+# Run YoutubeBoost without cloning anything.
+#
+#   mkdir youtubeboost && cd youtubeboost
+#   curl -o compose.yaml  https://raw.githubusercontent.com/yoanbernabeu/youtubeboost/main/compose.standalone.yaml
+#   curl -o .env.local    https://raw.githubusercontent.com/yoanbernabeu/youtubeboost/main/.env.example
+#   $EDITOR .env.local
+#   docker compose up -d
+#
+# This file pulls the published image instead of building it. Pin VERSION to a
+# release tag once you have one you like; "latest" follows every release.
+services:
+  app:
+    image: ghcr.io/yoanbernabeu/youtubeboost:${VERSION:-latest}
+    restart: unless-stopped
+    # Required on purpose: a missing file here means a broken instance with a
+    # confusing error, so Compose stops before that happens.
+    env_file:
+      - path: .env.local
+        required: true
+    environment:
+      APP_ENV: prod
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      - app_share:/app/var/share
+    ports:
+      - name: http
+        target: 80
+        published: ${HTTP_PORT:-80}
+        protocol: tcp
+      - name: https
+        target: 443
+        published: ${HTTPS_PORT:-443}
+        protocol: tcp
+      - name: http3
+        target: 443
+        published: ${HTTP3_PORT:-443}
+        protocol: udp
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # Same image as the web container: a worker running older code could not decode
+  # the messages the web container dispatches.
+  worker:
+    image: ghcr.io/yoanbernabeu/youtubeboost:${VERSION:-latest}
+    restart: unless-stopped
+    env_file:
+      - path: .env.local
+        required: true
+    environment:
+      APP_ENV: prod
+      # The web container owns the schema.
+      RUN_MIGRATIONS: "0"
+    command:
+      - php
+      - bin/console
+      - messenger:consume
+      - async
+      - --time-limit=3600
+      - --memory-limit=256M
+      - --failure-limit=10
+      - --keepalive
+      - -v
+    # The image health check probes the web server, which this container does not run.
+    healthcheck:
+      disable: true
+    # An idle worker blocks inside LISTEN/NOTIFY; give it time to come back.
+    stop_signal: SIGTERM
+    stop_grace_period: 90s
+    # The five thumbnails of an analysis are five separate messages; several
+    # consumers let them be drawn at the same time.
+    deploy:
+      replicas: ${WORKER_REPLICAS:-3}
+    volumes:
+      - app_share:/app/var/share
+    depends_on:
+      database:
+        condition: service_healthy
+      app:
+        condition: service_started
+
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - path: .env.local
+        required: true
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "app", "-U", "app"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+
+volumes:
+  caddy_data:
+  caddy_config:
+  app_share:
+  database_data:

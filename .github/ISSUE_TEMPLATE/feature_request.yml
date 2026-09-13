@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest something the tool should do.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        `docs/PRD.md` lists what is deliberately **out of scope**: title
+        suggestions, editing descriptions or tags, multi-user and multi-channel,
+        notifications, scheduled syncing, native YouTube A/B tests, and AI
+        providers other than Gemini.
+
+        If your idea is on that list, say why it should move off it. That is a
+        fair conversation — it is just better to have it before you write code.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that the tool makes hard today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you have already tried or considered
+
+  - type: dropdown
+    id: quota
+    attributes:
+      label: Would this consume YouTube quota or call a paid API?
+      options:
+        - "No"
+        - "Yes"
+        - "I do not know"
+    validations:
+      required: true

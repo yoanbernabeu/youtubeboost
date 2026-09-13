@@ -1,0 +1,16 @@
+{# Language picker. One button per shipped language; the current one is inert. #}
+<form method="post" action="{{ path('app_locale_switch') }}" class="flex items-center gap-0.5">
+    <input type="hidden" name="_token" value="{{ csrf_token('submit') }}">
+    {% for locale in this.available %}
+        {% set isCurrent = locale.value == this.current.value %}
+        <button type="submit"
+                name="locale"
+                value="{{ locale.value }}"
+                class="rounded-md px-1.5 py-1 text-xs font-medium uppercase transition-colors {{ isCurrent ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground' }}"
+                {{ isCurrent ? 'aria-current="true"' : '' }}
+                title="{{ locale.nativeName }}"
+                aria-label="{{ 'app.locale.switch_to'|trans({'%language%': locale.nativeName}) }}">
+            {{ locale.value }}
+        </button>
+    {% endfor %}
+</form>

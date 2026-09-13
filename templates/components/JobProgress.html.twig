@@ -1,0 +1,31 @@
+{# @prop job App\Job\Entity\Job|null #}
+{# @prop compact boolean #}
+{%- props job = null, compact = false -%}
+{% if job %}
+    <div class="{{ ('space-y-2 ' ~ attributes.render('class'))|tailwind_merge }}" {{ attributes.without('class') }}>
+        <div class="flex items-center justify-between gap-3 text-sm">
+            <span class="flex min-w-0 items-center gap-2">
+                {% if job.status.value == 'failed' %}
+                    <twig:ux:icon name="lucide:circle-x" class="size-4 shrink-0 text-destructive" />
+                {% elseif job.status.value == 'succeeded' %}
+                    <twig:ux:icon name="lucide:circle-check" class="size-4 shrink-0 text-success" />
+                {% else %}
+                    <twig:ux:icon name="lucide:loader-circle" class="size-4 shrink-0 animate-spin text-primary" />
+                {% endif %}
+                <span class="truncate {{ job.status.value == 'failed' ? 'text-destructive' : 'text-muted-foreground' }}">
+                    {{ job.errorMessage ?? job.step ?? 'job.progress.waiting'|trans }}
+                </span>
+            </span>
+            {% if not job.finished %}
+                <span class="shrink-0 text-xs font-medium tabular text-muted-foreground">{{ job.progress }} %</span>
+            {% endif %}
+        </div>
+
+        {% if not job.finished %}
+            <twig:Progress value="{{ job.progress }}" class="w-full" />
+            {% if job.total > 0 and not compact %}
+                <p class="text-xs text-muted-foreground tabular">{{ job.done }} / {{ job.total }}</p>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endif %}
