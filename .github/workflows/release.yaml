@@ -89,7 +89,7 @@ jobs:
           draft: true
           body: |
             ```bash
-            docker pull ${{ env.IMAGE }}:${{ github.ref_name }}
+            docker pull ${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
             ```
 
             Upgrading: read the README section on updating, then
