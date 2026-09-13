@@ -1,0 +1,51 @@
+security:
+    # The application has a single password, handed over as an environment
+    # variable. The plaintext hasher compares it in constant time, which is what
+    # the product specification asks for, without paying a bcrypt on every request
+    # of a long-running worker.
+    password_hashers:
+        Symfony\Component\Security\Core\User\InMemoryUser: 'plaintext'
+
+    providers:
+        app_user:
+            memory:
+                users:
+                    createur:
+                        password: '%env(APP_PASSWORD)%'
+                        roles: ['ROLE_CREATOR']
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler|_wdt|assets|build)/
+            security: false
+        main:
+            lazy: true
+            provider: app_user
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                csrf_token_id: authenticate
+                default_target_path: app_catalog
+            logout:
+                path: app_logout
+                target: app_login
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 2592000
+                always_remember_me: true
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
+
+    access_control:
+        - { path: ^/connexion$, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: ROLE_CREATOR }
+
+when@test:
+    security:
+        firewalls:
+            main:
+                login_throttling:
+                    # Unrelated tests must not trip the limiter.
+                    max_attempts: 1000

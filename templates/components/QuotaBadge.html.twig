@@ -1,0 +1,27 @@
+{% set snapshot = this.snapshot %}
+{% set breakdown = this.breakdown %}
+{% set tone = snapshot.exhausted ? 'destructive' : (snapshot.nearLimit ? 'warning' : 'normal') %}
+
+<twig:Tooltip id="quota-tooltip">
+    <twig:Tooltip:Trigger>
+        <span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium tabular
+            {{ tone == 'destructive' ? 'border-destructive/30 bg-destructive/10 text-destructive'
+             : (tone == 'warning' ? 'border-warm/40 bg-warm/15 text-warm-foreground dark:text-warm'
+             : 'border-border bg-muted/60 text-muted-foreground') }}">
+            <twig:ux:icon name="lucide:gauge" class="size-3.5" />
+            <span class="hidden sm:inline">{{ 'quota.label'|trans }}</span>
+            {{ snapshot.used|views }} / {{ snapshot.limit|views }}
+        </span>
+    </twig:Tooltip:Trigger>
+    <twig:Tooltip:Content>
+        <p class="font-medium">{{ 'quota.tooltip.used_percent'|trans({'%percent%': snapshot.usedPercent|percent(0)}) }}</p>
+        <p class="mt-1 text-muted-foreground">{{ 'quota.tooltip.resets_at'|trans({'%date%': snapshot.resetsAt|date('d/m'), '%time%': snapshot.resetsAt|date('H:i')}) }}</p>
+        {% if breakdown is not empty %}
+            <ul class="mt-2 space-y-0.5 text-muted-foreground">
+                {% for endpoint, cost in breakdown %}
+                    <li>{{ 'quota.tooltip.endpoint_cost'|trans({'%endpoint%': endpoint|e, '%units%': cost|views})|raw }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </twig:Tooltip:Content>
+</twig:Tooltip>

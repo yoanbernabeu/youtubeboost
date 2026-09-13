@@ -1,0 +1,621 @@
+# messages (en)
+#
+# Toute chaîne lue par le créateur vit ici : rien en dur dans un gabarit ni
+# dans un contrôleur. Une clé ajoutée d'un côté doit l'être de l'autre, sinon
+# la langue par défaut reprend la main sans prévenir.
+#
+# Clés triées par ordre alphabétique pour que les diffs restent lisibles.
+
+analysis:
+    error:
+        gemini_not_configured: 'GEMINI_API_KEY is not set: add it to .env.local, then recreate the containers.'
+        model_unreachable: 'Gemini could not analyse the video: %reason%'
+        no_usable_angle: 'Gemini came back with no usable thumbnail angle.'
+        unreadable_answer: "Gemini's answer cannot be used."
+    flash:
+        prompt_required: 'The prompt cannot be empty.'
+        prompt_saved: 'Prompt saved. Regenerate the thumbnail to apply it.'
+        regenerating: 'Five new thumbnails on the way.'
+        started: 'Analysis started: transcript, reading by Gemini, then five thumbnails.'
+        unknown_angle: 'This thumbnail angle no longer exists. Reload the page and try again.'
+    job:
+        done: '{1} 1 thumbnail on the way|]1,Inf[ %count% thumbnails on the way'
+        gone: 'The video has disappeared from the catalogue.'
+        queueing: 'Queueing the thumbnails'
+        reading: 'Gemini reading the video'
+        transcript: 'Fetching the transcript'
+    panel:
+        analysed_on: 'Analysed on %date% at %time% with %model%.'
+        intro: 'Gemini reads the video transcript and proposes five distinct angles.'
+        no_transcript:
+            default: 'Gemini worked from the title, the description and the statistics alone.'
+            title: 'Analysis without a transcript'
+        promise: 'Promise of the video'
+        relaunch: 'Run a new analysis'
+        running: 'Analysis running…'
+        start: 'Analyse this video'
+        summary: Summary
+        title: 'Analysis and thumbnail angles'
+    transcript:
+        unavailable:
+            automatic_refused: 'YouTube refused to hand over the automatic captions.'
+            download_failed: 'No caption track could be downloaded.'
+            download_refused: 'The caption download failed.'
+            empty_track: 'The caption track that came back is empty.'
+            list_failed: 'The caption list could not be reached.'
+            no_track: 'No usable caption track.'
+            none: 'No transcript is available for this video.'
+app:
+    locale:
+        changed: 'Language changed.'
+        switch_to: 'Switch the interface to %language%'
+catalog:
+    badge:
+        analysed: analysed
+    empty:
+        never_synced: 'Run a synchronisation to bring your catalogue in.'
+        no_match: 'No video matches these filters.'
+        title: 'No video to show'
+    filters:
+        age: Age
+        age_range:
+            over_1_year: 'Over a year'
+            over_2_months: 'Over 2 months'
+            over_6_months: 'Over 6 months'
+            under_1_year: 'Under a year'
+            under_6_months: 'Under 6 months'
+        any: All
+        include_ineligible: 'Also show Shorts, live streams and private videos'
+        min_score: 'Minimum score'
+        min_score_option: '%score% and above'
+        relaunch_state: 'Relaunch status'
+        reset: Reset
+        search: Search
+        search_placeholder: 'Title or description…'
+        sort: Sort
+        sort_by:
+            oldest: Oldest
+            recent: 'Most recent'
+            score: 'Score, highest first'
+            title: Title
+            views: 'Most viewed'
+        state:
+            finished: 'Relaunch finished'
+            none: 'Never relaunched'
+            reverted: Reverted
+            tracking: 'Tracking under way'
+        submit: Filter
+    heading: Catalogue
+    impressions_notice:
+        body: 'YouTube only exposes them through daily reports, generated from the moment the channel was connected, on %date%. The first ones arrive within a day or two. Until then, the “Low CTR” and “Impressions” signals are neutralised: they count neither for nor against the score.'
+        title: 'Thumbnail impressions are on their way'
+    pagination:
+        label: Pagination
+        next: Next
+        page: 'Page %page% of %pages%'
+        previous: Previous
+    stats:
+        scored: 'Videos scored'
+        scored_hint: 'eligible for a relaunch'
+        successful: 'Successful relaunches'
+        successful_hint: '{0}no negative one|{1}%total% negative one|]1,Inf[%total% negative ones'
+        synced: 'Videos synced'
+        synced_hint: '%total% long-form videos'
+        tracking: 'Relaunches being tracked'
+        tracking_hint: 'verdict at 14 and 28 days'
+    status:
+        relaunched: Relaunched
+        reverted: Reverted
+        tracking: Tracking
+    subheading:
+        filtered: '{0}No video matches the filters|{1}%total% video matches the filters|]1,Inf[%total% videos match the filters'
+        ranked: '{0}No video in the ranking|{1}%total% video in the ranking|]1,Inf[%total% videos in the ranking'
+    table:
+        age: Age
+        score: Score
+        signals: Signals
+        status: Status
+        thumbnail: Thumbnail
+        video: Video
+        views: Views
+    title: 'Catalogue — YoutubeBoost'
+common:
+    back: Back
+    date:
+        day_time: 'd/m \a\t H:i'
+        short: d/m/Y
+        short_time: 'd/m/Y \a\t H:i'
+    delete: Delete
+    quota_units: '%count% u.'
+    save: Save
+job:
+    progress:
+        waiting: 'Waiting for the worker…'
+    step:
+        preparing: Preparing
+nav:
+    catalog: Catalogue
+    close_menu: 'Close the menu'
+    main: 'Main navigation'
+    open_menu: 'Open the menu'
+    relaunches: Relaunches
+    settings: Settings
+    sign_out: 'Sign out'
+    theme: Theme
+    toggle_theme: 'Switch theme'
+onboarding:
+    flash:
+        add_every_angle: 'Add at least one front photo, one right profile and one left profile.'
+        completed: 'Everything is ready. Run a first synchronisation of the catalogue.'
+        connect_channel_first: 'Connect your YouTube channel first.'
+    gemini_missing:
+        body: 'Connecting the channel will work, but no analysis and no thumbnail can be generated until <code class="font-mono">GEMINI_API_KEY</code> is set in <code class="font-mono">.env.local</code>; then reload the configuration with <code class="font-mono">make reload</code>: a plain <code class="font-mono">restart</code> does not read the file again.'
+    google:
+        checks:
+            production: 'The OAuth application has to be “In production”. In “Testing” status, Google expires the authorisation after 7 days.'
+            redirect_uri: 'The authorised redirect URI has to be exactly <code class="font-mono break-all">%uri%</code>.'
+            title: 'Two settings to check in Google Cloud'
+        connect: 'Connect with Google'
+        connected_badge: Connected
+        connected_on: 'Connected on %date%'
+        credentials_missing:
+            body: 'Set <code class="font-mono">GOOGLE_CLIENT_ID</code>, <code class="font-mono">GOOGLE_CLIENT_SECRET</code> and <code class="font-mono">GOOGLE_REDIRECT_URI</code> in your <code class="font-mono">.env.local</code> file, then reload this page.'
+            title: 'Google credentials missing'
+        description: 'YoutubeBoost reads your statistics and replaces your thumbnails on your behalf. It never touches the title or the description.'
+        reconnect: 'Reconnect the channel'
+        title: 'Connect your channel'
+    heading: 'Welcome to YoutubeBoost'
+    intro: 'Three steps, once and for all, and the tool will know how to spot the videos worth relaunching and how to draw thumbnails that look like you.'
+    next_step: 'Next step'
+    photos:
+        delete_aria: 'Delete the photo %label%'
+        description: 'Gemini uses them so your face stays recognisable. At the very least one front shot, one right profile and one left profile. A well-lit, sharp face, without sunglasses.'
+        files_help: 'JPEG, PNG or WebP, 12 MB per file at most. Images are resized automatically.'
+        label_label: 'Label (optional)'
+        label_placeholder: 'Smiling, studio…'
+        missing_angles: '{1} One angle is still missing|]1,Inf[ %count% angles are still missing'
+        stored_count: '{1} 1 photo saved|]1,Inf[ %count% photos saved'
+        submit: 'Add these photos'
+        title: 'Your reference photos'
+    progress_label: Progress
+    steps:
+        google: 'YouTube channel'
+        photos: 'Reference photos'
+        style: 'Channel style'
+    style:
+        description: 'This text is injected into every prompt. The more precise it is, the more the thumbnails look like yours.'
+        field_label: 'Style guidelines'
+        finish: 'Finish the setup'
+        help: 'Palette, typography, tone, recurring elements, things to avoid. You will be able to change it at any time in the settings.'
+        placeholder: 'Palette: charcoal background, yellow accents.&#10;Typography: large condensed typeface, uppercase, black outline.&#10;Recurring elements: logo bottom left, red arrow.&#10;To avoid: emoji, pink gradients, text over more than two lines.'
+        title: 'Your channel style'
+    title: Welcome
+quota:
+    cost: '~%cost% units'
+    label: Quota
+    tooltip:
+        endpoint_cost: '<code class="font-mono">%endpoint%</code>: %units% units'
+        resets_at: 'Resets on %date% at %time% (Pacific time).'
+        used_percent: '%percent% of the daily quota used'
+relaunch:
+    badge:
+        negative: Negative
+        negative_provisional: 'Negative (14 d)'
+        neutral: Neutral
+        neutral_provisional: 'Neutral (14 d)'
+        pending: Pending
+        successful: Successful
+        successful_provisional: 'Successful (14 d)'
+    compare:
+        after: After
+        before: Before
+    error:
+        already_reverted: 'This relaunch has already been rolled back.'
+        archive_missing: 'The old thumbnail is no longer in the archive.'
+        current_thumbnail_unavailable: 'The current thumbnail could not be downloaded, so the relaunch is cancelled rather than lose the original.'
+        proposal_not_ready: 'This proposal has no usable image yet.'
+        upload_refused: 'YouTube refused the new thumbnail: %reason%'
+    flash:
+        already_reverted: 'This relaunch has already been rolled back.'
+        reverting: 'Restoring the old thumbnail.'
+    index:
+        applied_on: 'Applied on %date%'
+        detail: Details
+        empty:
+            action: 'Open the catalogue'
+            description: 'Analyse a video from the catalogue, pick a thumbnail, apply it: it shows up here with its verdict.'
+            title: 'No relaunch yet'
+        first_milestone_in: '{0} First milestone today.|{1} First milestone in 1 day.|]1,Inf[ First milestone in %count% days.'
+        heading: Relaunches
+        reverted_on: 'Rolled back on %date%'
+        stats:
+            negative: Negative
+            neutral: Neutral
+            reverted: '{0} none rolled back|{1} 1 rolled back|]1,Inf[ %count% rolled back'
+            successful: Successful
+            total: Relaunches
+        subheading: 'What worked, what changed nothing, what to roll back.'
+        title: 'Relaunches — YoutubeBoost'
+    job:
+        apply:
+            done: 'Thumbnail applied on %date% at %time%'
+            gone: 'The proposal has been deleted.'
+            step: 'Archiving the current thumbnail'
+        revert:
+            done: 'Old thumbnail restored'
+            gone: 'The relaunch has been deleted.'
+            step: 'Restoring the old thumbnail'
+    metric:
+        average_duration: 'Average view duration'
+        ctr: CTR
+        impressions: Impressions
+        impressions_per_day: 'Impressions / day'
+        views_per_day: 'Views / day'
+    show:
+        alert:
+            description: 'Putting the old thumbnail back is probably the right move. It is archived and ready to restore.'
+            title: 'This relaunch pushed the numbers down'
+        applied_alt: 'New thumbnail'
+        applied_caption: 'Applied thumbnail'
+        archived_alt: 'Old thumbnail'
+        archived_caption: 'Old thumbnail (archived)'
+        back_to_video: 'The video'
+        compare:
+            title: 'Before / after'
+        comparison:
+            description: 'Base 100 over the %days% days before the change.'
+            empty: 'No data since the change yet.'
+            title: 'Numbers side by side'
+        heading: 'Relaunch of %date%'
+        milestones:
+            days: '%days% days'
+            description: 'The 14 day verdict is provisional, the 28 day one is final. A milestone is only read once the data covers the whole period.'
+            expected: 'Expected on %date%'
+            snapshot: '%views% views/day over %days% days'
+            title: Milestones
+        revert:
+            action: 'Back to the old one'
+            confirm: 'Put the old thumbnail back on YouTube?'
+        reverted_on: 'Rolled back on %date% at %time%'
+        title: 'Relaunch — %title%'
+        views:
+            empty: 'No Analytics data for this video.'
+            title: 'Views of the video'
+    status:
+        completed: Completed
+        reverted: 'Rolled back'
+        tracking: Tracking
+    verdict:
+        negative: 'Negative relaunch'
+        neutral: 'No measurable effect'
+        successful: 'Successful relaunch'
+scoring:
+    score_badge:
+        incomplete: 'Incomplete score: decline or CTR data is missing.'
+    signal_tooltip:
+        no_data: '%signal%: no data'
+        value: '%signal%: %value%'
+    signals_aria: 'Signal breakdown'
+    step:
+        baselines: 'Channel baselines'
+        scoring: 'Computing scores'
+security:
+    login:
+        description: 'Enter the password of this instance.'
+        error_title: 'Sign-in refused'
+        password: Password
+        password_hint: 'The password is set by the <code class="rounded bg-muted px-1 py-0.5 font-mono">APP_PASSWORD</code> environment variable.'
+        submit: 'Sign in'
+        tagline: 'Give your back catalogue a second life.'
+        title: 'Sign in'
+settings:
+    angle:
+        front: Front
+        left: 'Left profile'
+        lower:
+            front: front
+            left: 'left profile'
+            right: 'right profile'
+        other: Other
+        other_long: 'Other angle or expression'
+        right: 'Right profile'
+    channel:
+        connect: 'Connect a channel'
+        connected_on: 'Connected on %date%'
+        disconnect: Disconnect
+        disconnect_confirm: 'Disconnect the channel? Videos and relaunches are kept.'
+        last_synced_on: 'last synced on %date%'
+        none:
+            body: 'Redirect URI to authorise in Google Cloud: <code class="font-mono break-all">%uri%</code>'
+            title: 'No channel connected'
+        reconnect: Reconnect
+        reporting_active: 'impressions report active'
+        reporting_unavailable: 'impressions report unavailable'
+        title: 'YouTube channel and quota'
+    flash:
+        choose_photo: 'Choose at least one photo.'
+        generation_saved: 'Models and thresholds saved.'
+        photo_deleted: 'Photo deleted.'
+        photo_updated: 'Photo updated.'
+        photos_added: '{1} 1 photo added.|]1,Inf[ %count% photos added.'
+        scoring_saved: 'Weights saved. Scores will be recalculated on the next synchronisation.'
+        style_saved: 'Style guidelines saved.'
+    gemini_missing:
+        body: 'Set <code class="font-mono">GEMINI_API_KEY</code> in <code class="font-mono">.env.local</code>, then reload the configuration with <code class="font-mono">make reload</code>: a plain <code class="font-mono">restart</code> does not read the file again.'
+        title: 'Gemini key missing'
+    generation:
+        analytics_delay:
+            help: 'One request per video: raise it if YouTube asks you to slow down.'
+            label: 'Delay between Analytics requests (ms)'
+        description: 'Leave a model field empty to keep the value from the environment.'
+        image_model:
+            label: 'Gemini image model'
+        model_in_use: 'Currently in use: <code class="font-mono">%model%</code>'
+        ratio_syntax: 'ratio syntax in use: <code class="font-mono">%style%</code>'
+        text_model:
+            label: 'Gemini text model'
+        title: 'Models, pacing and verdicts'
+    photos:
+        add: Add
+        angle_label: Angle
+        delete_confirm: 'Delete this reference photo?'
+        description: 'Every photo is sent on each generation, the requested angle first.'
+        error:
+            too_heavy: '“%name%” is over %size% MB.'
+            unreadable: '“%name%” is not a readable image.'
+            unsupported_type: '“%name%” is neither a JPEG, a PNG nor a WebP.'
+            upload_failed: 'Uploading “%name%” failed.'
+        files_label: Files
+        missing_angles: 'Missing angles'
+        title: 'Reference photos'
+    quota:
+        resets_at: 'Resets on %date% (Pacific time).'
+        title: 'YouTube Data API quota'
+        today: 'Today:'
+        unit_abbrev: u.
+        usage: '%used% / %limit% units'
+    scoring:
+        cooldown:
+            help: 'A relaunched video is left alone for that long.'
+            label: 'Follow-up period (days)'
+        ctr_floor:
+            help: 'Share of the median below which the signal saturates at 1.'
+            label: 'CTR floor'
+        description: 'Weights are relative: their sum does not matter, only their proportion does. Signals with no data are neutralised instead of being counted as zero.'
+        min_age:
+            help: 'Below that, a video is still living its normal life.'
+            label: 'Minimum age (days)'
+        retention_target:
+            help: 'Multiple of the median worth a whole point.'
+            label: 'Full retention'
+        save: 'Save the scoring'
+        title: 'Relaunch scoring'
+        warmup:
+            help: 'The release spike is not used as a reference.'
+            label: 'Launch period ignored'
+        window:
+            help: 'The “recent” period compared with the past.'
+            label: 'Analysis window (days)'
+    style:
+        description: 'Injected into every prompt, text and image.'
+        save: 'Save the guidelines'
+        title: 'Style guidelines'
+    title: Settings
+    verdict:
+        ctr:
+            help: 'A CTR falling below that multiple is enough to conclude.'
+            label: 'CTR floor'
+        floor:
+            help: 'Below that, the relaunch is negative.'
+            label: 'Neutrality floor'
+        success:
+            help: 'Multiple of views per day to reach.'
+            label: 'Success threshold'
+shared:
+    age:
+        days: '{1} 1 day|]1,Inf[ %count% days'
+        months: '{1} 1 month|]1,Inf[ %count% months'
+        today: today
+        years: '{1} %value% year|]1,Inf[ %value% years'
+        yesterday: yesterday
+    byte_size:
+        bytes: '%size% B'
+        kilobytes: '%size% KB'
+        megabytes: '%size% MB'
+    signal:
+        decline:
+            explanation: 'The video gets far fewer views per day than it did at its best.'
+            label: Decline
+        impressions:
+            explanation: 'YouTube keeps showing it: a new thumbnail can still be seen.'
+            label: Impressions
+        low_ctr:
+            explanation: 'YouTube still suggests it, but the click-through rate is below the channel median.'
+            label: 'Low CTR'
+        potential:
+            explanation: 'The video has already proved it interests people, through its audience and its retention.'
+            label: Potential
+sync:
+    panel:
+        action: Synchronise
+        data_until: 'Data stopped at %date%.'
+        heading: Synchronisation
+        last_sync: 'Last synced on %date% at %time%.'
+        never: 'The catalogue has never been synced.'
+        running: Running…
+    report:
+        summary: '%total% videos synced, %created% new, %scored% scores recomputed, data stopped at %date%'
+    step:
+        catalogue: 'Reading the catalogue'
+        daily_stats: 'Daily statistics'
+        reach: 'Impressions and CTR'
+        video_metadata: 'Video metadata'
+thumbnail:
+    already_applied: 'Already applied'
+    apply:
+        confirm: "Replace this video's thumbnail on YouTube? The old one will be archived."
+    error:
+        no_image_returned: 'Gemini answered without an image. Reword the instruction or try again.'
+        no_reference_photo: 'Add at least one reference photo in the settings before generating thumbnails.'
+        provider_refused: 'Gemini could not generate the image: %reason%'
+        text_instead_of_image: 'Gemini answered with text instead of an image: “%answer%”'
+        text_instead_of_image_silent: 'Gemini answered with text instead of an image, with no explanation. Run the generation again.'
+    feed:
+        meta: '%views% views · %age% ago'
+        meta_with_channel: '%channel% · %views% views · %age% ago'
+    flash:
+        applying: 'Applying: the old thumbnail is archived before the write.'
+        instruction_required: 'Describe the change you want.'
+        iterating: 'A new version is being generated.'
+        not_ready_yet: 'Wait for this thumbnail to be generated before editing it.'
+        regenerated: 'Thumbnail %number% queued again.'
+    grid:
+        angle:
+            front: front
+            left: 'left profile'
+            other: free
+            right: 'right profile'
+        angle_line: 'Expression: %expression% · angle: %angle%'
+        applied_badge: Applied
+        apply: Apply
+        applying: Applying…
+        compare: Compare
+        download_label: 'Download the PNG'
+        file_info: 'PNG 1280×720 · %size%'
+        iterate_label: 'Edit this thumbnail'
+        iterate_placeholder: 'Make the text bigger, darker background…'
+        ready_count: '{0} None of the %total% thumbnails are ready.|{1} 1 of %total% ready.|]1,Inf[ %count% of %total% ready.'
+        regenerate_all: 'Regenerate all'
+        retry: 'Try again'
+        save_prompt: 'Save the prompt'
+        show_prompt: 'View and edit the prompt'
+        streaming: 'Images land as they are drawn.'
+        title: 'Proposed thumbnails'
+    job:
+        done: 'Thumbnail %number% generated'
+        failed: 'Thumbnail %number% failed: %error%'
+        gone: 'The proposal has been deleted.'
+        step: 'Thumbnail %number%'
+    preview:
+        apply: 'Apply on YouTube'
+        back: 'Back to the video'
+        compare:
+            description: 'The thumbnail live today, next to proposal %number%.'
+            title: 'Before / after'
+        current_alt: 'Current thumbnail'
+        current_caption: Current
+        feed:
+            default_channel: 'My channel'
+            description: 'The real test: the thumbnail has to stay readable at the size of an actual card.'
+            desktop: Desktop
+            mobile: Mobile
+            sidebar: 'Up next'
+            title: 'In a YouTube feed'
+        heading: 'Compare and preview'
+        history:
+            description: 'Every iteration keeps the previous one.'
+            title: 'Version history'
+            version: 'Version %number%'
+        prompt:
+            title: 'Prompt sent to Gemini'
+        title: 'Comparison — %title%'
+    proposal_number: 'Proposal %number%'
+    quoted_instruction: “%instruction%”
+video:
+    action:
+        watch_on_youtube: 'Watch on YouTube'
+    breakdown:
+        description: 'Four weighted signals, computed over the last %days% days of data.'
+        description_until: 'Four weighted signals, computed over the last %days% days of data (up to %date%).'
+        heading: 'Why this score'
+    chart:
+        after: After
+        before: 'Before (base 100)'
+        empty: 'No Analytics data for this video.'
+        heading: 'Views since publication'
+        no_history: 'Not enough history yet to compare against a best period.'
+        retained: 'The video is currently achieving %share% of its best period.'
+        trend: '28-day moving average'
+        views_per_day: 'Views per day'
+        views_per_week: 'Views per week'
+    flash:
+        type_corrected: 'Type corrected. The score will be updated at the next synchronisation.'
+        unknown_type: 'Unknown video type.'
+    meta:
+        published: 'published %age% ago'
+        views: '{0}no views|{1}%total% view|]1,Inf[%total% views'
+    page_title: '%title% — YoutubeBoost'
+    relaunches:
+        applied_on: 'Applied on %date% at %time%'
+        heading: 'Relaunches of this video'
+    score:
+        computed_on: 'Computed on %date%.'
+        interesting: 'promising candidate'
+        label: 'Relaunch score'
+        low: 'low priority'
+        out: 'out of the ranking'
+        priority: 'relaunch first'
+    signal:
+        no_data: 'no data'
+        out_of_100: '%value% / 100'
+    stats:
+        best_period: 'Best period'
+        ctr: CTR
+        impressions: Impressions
+        views_per_day: 'Views / day'
+    thumbnail:
+        alt: 'Current thumbnail'
+        as_shown: 'As it appears in the feeds today.'
+        auto_generated: 'Thumbnail generated automatically by YouTube.'
+        heading: 'Current thumbnail'
+    transcript:
+        heading: Transcript
+        meta: '%source% (%language%) · %characters% characters · fetched on %date%'
+        show: 'Show transcript'
+        source:
+            automatic: 'Automatic subtitles'
+            manual: 'Manually uploaded subtitles'
+    type:
+        live: Live
+        short: Short
+        standard: 'Long-form video'
+    type_source:
+        analytics: 'confirmed by YouTube'
+        detected: 'Detected type: <strong>%type%</strong> (%source%)'
+        heuristic: heuristic
+        manual: 'set by hand'
+        submit: Correct
+        unknown: undetermined
+    visibility:
+        private: Private
+        public: Public
+        unlisted: Unlisted
+youtube:
+    connection_expired:
+        body: 'Google is refusing the saved authorisation. If this happens every week, it means the OAuth application is still in "Testing" status in the Google Cloud console.'
+        title: 'The YouTube connection has expired'
+    error:
+        authorisation_expired: 'The YouTube connection has expired (%reason%). Reconnect the channel from the settings.'
+        call_failed: 'YouTube refused the call: %message%'
+        generic: 'The call to YouTube failed.'
+        no_channel: 'The connected Google account owns no YouTube channel.'
+        no_refresh_token: 'Google returned no refresh token. Revoke the access of the application in your Google account, then start again.'
+        no_uploads_playlist: 'The uploads playlist of the channel cannot be found.'
+        not_connected: 'No YouTube channel is connected.'
+        quota_exhausted: 'The daily YouTube API quota is exhausted. Try again after it resets.'
+        quota_for_cost: 'This operation costs %cost% quota units but only %remaining% are left today. The quota resets on %date%.'
+        rate_limited: 'The YouTube API asked us to slow down (%reason%).'
+        reporting_job_failed: 'Creating the impressions report failed.'
+        reporting_unreadable: 'The downloaded impressions report is unreadable.'
+        token_refused: 'Google refused the token request: %error% %description%'
+        token_unreachable: 'Google could not be reached to obtain a token.'
+        unexpected_response: 'Unexpected response from the Google API.'
+        unreachable: 'Google could not be reached.'
+    flash:
+        authorisation_refused: 'Google refused the authorisation (%error%).'
+        connected: 'Channel “%name%” connected.'
+        credentials_missing: 'Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URI before connecting the channel.'
+        disconnected: 'YouTube channel disconnected.'
+        incomplete_response: 'The response from Google is incomplete, start the connection again.'
+        state_mismatch: 'The anti-CSRF check of the Google connection failed.'
+    reconnect: Reconnect

@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+{% set channel = connected_channel() %}
+<div class="flex min-h-screen bg-background" data-controller="sidebar" data-action="keydown@window->sidebar#closeOnEscape">
+
+    {# Dimmer behind the off-canvas panel, small screens only. #}
+    <div class="fixed inset-0 z-30 hidden bg-background/80 backdrop-blur-sm lg:hidden"
+         data-sidebar-target="overlay"
+         data-action="click->sidebar#close"
+         aria-hidden="true"></div>
+
+    <aside class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-border bg-sidebar transition-transform duration-200 lg:translate-x-0"
+           data-sidebar-target="panel">
+        <div class="flex h-16 shrink-0 items-center gap-2.5 px-5">
+            <a href="{{ path('app_catalog') }}" class="flex items-center gap-2.5">
+                <span class="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                    <twig:ux:icon name="lucide:play" class="size-4" />
+                </span>
+                <span class="text-base font-semibold tracking-tight">YoutubeBoost</span>
+            </a>
+            <twig:Button variant="ghost" size="icon-sm" class="ml-auto lg:hidden" data-action="sidebar#close" aria-label="{{ 'nav.close_menu'|trans }}">
+                <twig:ux:icon name="lucide:x" />
+            </twig:Button>
+        </div>
+
+        <nav class="flex-1 space-y-1 px-3 py-2" aria-label="{{ 'nav.main'|trans }}">
+            {% set navigation = [
+                { route: 'app_catalog', label: 'nav.catalog', icon: 'lucide:library', prefixes: ['app_catalog', 'app_video'] },
+                { route: 'app_relaunches', label: 'nav.relaunches', icon: 'lucide:rocket', prefixes: ['app_relaunch'] },
+                { route: 'app_settings', label: 'nav.settings', icon: 'lucide:settings', prefixes: ['app_settings'] },
+            ] %}
+            {% set current = app.request.attributes.get('_route')|default('') %}
+            {% for item in navigation %}
+                {% set active = false %}
+                {% for prefix in item.prefixes %}
+                    {% if current starts with prefix %}{% set active = true %}{% endif %}
+                {% endfor %}
+                <a href="{{ path(item.route) }}"
+                   class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ active ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground' }}"
+                   {{ active ? 'aria-current="page"' : '' }}>
+                    <twig:ux:icon name="{{ item.icon }}" class="size-4" />
+                    {{ item.label|trans }}
+                </a>
+            {% endfor %}
+        </nav>
+
+        <div class="border-t border-border p-3">
+            {% if channel %}
+                <div class="mb-2 flex items-center gap-2.5 rounded-lg px-2 py-1.5">
+                    {% if channel.thumbnailUrl %}
+                        <img src="{{ channel.thumbnailUrl }}" alt="" class="size-7 rounded-full object-cover" loading="lazy">
+                    {% else %}
+                        <span class="flex size-7 items-center justify-center rounded-full bg-muted">
+                            <twig:ux:icon name="lucide:youtube" class="size-4 text-muted-foreground" />
+                        </span>
+                    {% endif %}
+                    <span class="min-w-0 flex-1 truncate text-sm font-medium" title="{{ channel.title }}">{{ channel.title }}</span>
+                </div>
+            {% endif %}
+            <div class="flex items-center gap-1">
+                <twig:Button variant="ghost" size="sm" class="flex-1 justify-start text-muted-foreground"
+                             data-controller="theme" data-action="theme#toggle" aria-label="{{ 'nav.toggle_theme'|trans }}">
+                    <twig:ux:icon name="lucide:sun" class="size-4" data-theme-target="light" />
+                    <twig:ux:icon name="lucide:moon" class="size-4 hidden" data-theme-target="dark" />
+                    {{ 'nav.theme'|trans }}
+                </twig:Button>
+                <twig:LocaleSwitcher />
+                <form method="post" action="{{ path('app_logout') }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                    <twig:Button type="submit" variant="ghost" size="icon-sm" class="text-muted-foreground" aria-label="{{ 'nav.sign_out'|trans }}">
+                        <twig:ux:icon name="lucide:log-out" />
+                    </twig:Button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex min-w-0 flex-1 flex-col lg:pl-64">
+        <header class="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
+            <twig:Button variant="ghost" size="icon-sm" class="lg:hidden" data-action="sidebar#open" aria-label="{{ 'nav.open_menu'|trans }}">
+                <twig:ux:icon name="lucide:panel-left" />
+            </twig:Button>
+
+            <div class="min-w-0 flex-1">
+                <h1 class="truncate text-base font-semibold tracking-tight sm:text-lg">{% block heading %}{% endblock %}</h1>
+                {% block subheading %}{% endblock %}
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2">
+                {% block header_actions %}{% endblock %}
+                {{ component('QuotaBadge') }}
+            </div>
+        </header>
+
+        <main class="flex-1 px-4 py-6 sm:px-6 lg:py-8">
+            {% if channel and channel.reconnectionRequired %}
+                <div class="mx-auto mb-6 max-w-7xl">
+                    <twig:Alert variant="destructive">
+                        <twig:ux:icon name="lucide:triangle-alert" />
+                        <twig:Alert:Title>{{ 'youtube.connection_expired.title'|trans }}</twig:Alert:Title>
+                        <twig:Alert:Description>
+                            {{ 'youtube.connection_expired.body'|trans }}
+                        </twig:Alert:Description>
+                        <twig:Alert:Action>
+                            <twig:Button as="a" href="{{ path('app_oauth_connect') }}" size="sm">{{ 'youtube.reconnect'|trans }}</twig:Button>
+                        </twig:Alert:Action>
+                    </twig:Alert>
+                </div>
+            {% endif %}
+
+            {% block main %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}

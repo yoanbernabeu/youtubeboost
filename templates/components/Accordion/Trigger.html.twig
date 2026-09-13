@@ -1,0 +1,26 @@
+{# @block content The clickable trigger label that toggles the accordion item. #}
+{%- set _accordionItem_triggerId = inject('accordionItem.triggerId') -%}
+{%- set _accordionItem_contentId = inject('accordionItem.contentId') -%}
+{%- set _accordionItem_disabled = inject('accordionItem.disabled', false) -%}
+{%- set _accordionItem_isOpen = inject('accordionItem.isOpen', false) -%}
+{%- set _accordionItem_orientation = inject('accordionItem.orientation', 'vertical') -%}
+<h3 class="flex" data-orientation="{{ _accordionItem_orientation }}">
+    <button
+        type="button"
+        id="{{ _accordionItem_triggerId }}"
+        data-slot="accordion-trigger"
+        data-accordion-target="trigger"
+        {{ _accordionItem_disabled ? 'disabled' }}
+        data-orientation="{{ _accordionItem_orientation }}"
+        aria-expanded="{{ _accordionItem_isOpen ? 'true' : 'false' }}"
+        aria-controls="{{ _accordionItem_contentId }}"
+        class="{{ ('group/accordion-trigger relative flex flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-left rtl:text-start text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:after:border-ring disabled:pointer-events-none disabled:opacity-50 ltr:**:data-[slot=accordion-trigger-icon]:ml-auto rtl:**:data-[slot=accordion-trigger-icon]:ms-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground ' ~ attributes.render('class'))|tailwind_merge }}"
+        {{ attributes.defaults({
+            'data-action': 'click->accordion#toggle keydown->accordion#handleKeydown',
+        }) }}
+    >
+        {%- block content %}{% endblock -%}
+        <twig:ux:icon name="lucide:chevron-down" data-slot="accordion-trigger-icon" class="pointer-events-none shrink-0 group-aria-expanded/accordion-trigger:hidden" />
+        <twig:ux:icon name="lucide:chevron-up" data-slot="accordion-trigger-icon" class="pointer-events-none hidden shrink-0 group-aria-expanded/accordion-trigger:inline" />
+    </button>
+</h3>

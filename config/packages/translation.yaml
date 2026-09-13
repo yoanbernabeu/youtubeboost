@@ -1,0 +1,10 @@
+framework:
+    # English is the default so a fresh install is usable by anyone; French is a
+    # complete translation, not a fallback.
+    default_locale: en
+    enabled_locales: ['en', 'fr']
+    translator:
+        default_path: '%kernel.project_dir%/translations'
+        fallbacks:
+            - en
+        providers:

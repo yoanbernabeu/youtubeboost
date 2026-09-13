@@ -1,0 +1,8 @@
+{# @block content The clickable link text. #}
+<a
+    data-slot="breadcrumb-link"
+    class="{{ ('transition-colors hover:text-foreground ' ~ attributes.render('class'))|tailwind_merge }}"
+    {{ attributes }}
+>
+    {%- block content %}{% endblock -%}
+</a>

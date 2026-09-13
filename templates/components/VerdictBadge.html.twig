@@ -1,0 +1,20 @@
+{# @prop verdict string|null 'successful'|'neutral'|'negative' #}
+{# @prop final boolean Whether the 28 day milestone is in. #}
+{%- props verdict = null, final = false -%}
+{% if verdict is null %}
+    <twig:Badge variant="outline">
+        <twig:ux:icon name="lucide:hourglass" data-icon="inline-start" />
+        {{ 'relaunch.badge.pending'|trans }}
+    </twig:Badge>
+{% else %}
+    {% set map = {
+        successful: { variant: 'success', icon: 'lucide:trending-up', label: 'relaunch.badge.successful', provisional: 'relaunch.badge.successful_provisional' },
+        neutral:    { variant: 'secondary', icon: 'lucide:minus', label: 'relaunch.badge.neutral', provisional: 'relaunch.badge.neutral_provisional' },
+        negative:   { variant: 'destructive', icon: 'lucide:trending-down', label: 'relaunch.badge.negative', provisional: 'relaunch.badge.negative_provisional' },
+    } %}
+    {% set item = map[verdict] %}
+    <twig:Badge variant="{{ item.variant }}">
+        <twig:ux:icon name="{{ item.icon }}" data-icon="inline-start" />
+        {{ (final ? item.label : item.provisional)|trans }}
+    </twig:Badge>
+{% endif %}

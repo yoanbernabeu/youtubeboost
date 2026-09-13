@@ -1,0 +1,621 @@
+# messages (fr)
+#
+# Toute chaîne lue par le créateur vit ici : rien en dur dans un gabarit ni
+# dans un contrôleur. Une clé ajoutée d'un côté doit l'être de l'autre, sinon
+# la langue par défaut reprend la main sans prévenir.
+#
+# Clés triées par ordre alphabétique pour que les diffs restent lisibles.
+
+analysis:
+    error:
+        gemini_not_configured: "La clé GEMINI_API_KEY n'est pas renseignée : ajoutez-la dans .env.local, puis recréez les conteneurs."
+        model_unreachable: "Gemini n'a pas pu analyser la vidéo : %reason%"
+        no_usable_angle: "Gemini n'a proposé aucun angle de miniature exploitable."
+        unreadable_answer: "La réponse de Gemini n'est pas exploitable."
+    flash:
+        prompt_required: 'Le prompt ne peut pas être vide.'
+        prompt_saved: "Prompt enregistré. Relancez la miniature pour l'appliquer."
+        regenerating: 'Cinq nouvelles miniatures en préparation.'
+        started: 'Analyse lancée : transcript, lecture par Gemini, puis cinq miniatures.'
+        unknown_angle: "Cet angle de miniature n'existe plus. Rechargez la page et réessayez."
+    job:
+        done: '{1} 1 miniature en préparation|]1,Inf[ %count% miniatures en préparation'
+        gone: 'La vidéo a disparu du catalogue.'
+        queueing: 'Mise en file des miniatures'
+        reading: 'Lecture de la vidéo par Gemini'
+        transcript: 'Récupération du transcript'
+    panel:
+        analysed_on: 'Analysée le %date% à %time% avec %model%.'
+        intro: 'Gemini lit le transcript de la vidéo et propose cinq angles distincts.'
+        no_transcript:
+            default: 'Gemini a travaillé à partir du titre, de la description et des statistiques seulement.'
+            title: 'Analyse sans transcript'
+        promise: 'Promesse de la vidéo'
+        relaunch: 'Relancer une analyse'
+        running: 'Analyse en cours…'
+        start: 'Analyser cette vidéo'
+        summary: Résumé
+        title: 'Analyse et angles de miniature'
+    transcript:
+        unavailable:
+            automatic_refused: 'YouTube a refusé le téléchargement des sous-titres automatiques.'
+            download_failed: "Aucune piste n'a pu être téléchargée."
+            download_refused: 'Le téléchargement des sous-titres a échoué.'
+            empty_track: 'La piste de sous-titres téléchargée est vide.'
+            list_failed: 'La liste des sous-titres est inaccessible.'
+            no_track: 'Aucune piste de sous-titres exploitable.'
+            none: 'Aucun transcript disponible pour cette vidéo.'
+app:
+    locale:
+        changed: 'Langue modifiée.'
+        switch_to: "Passer l'interface en %language%"
+catalog:
+    badge:
+        analysed: analysée
+    empty:
+        never_synced: 'Lancez une synchronisation pour rapatrier votre catalogue.'
+        no_match: 'Aucune vidéo ne correspond à ces filtres.'
+        title: 'Aucune vidéo à afficher'
+    filters:
+        age: Âge
+        age_range:
+            over_1_year: "Plus d'un an"
+            over_2_months: 'Plus de 2 mois'
+            over_6_months: 'Plus de 6 mois'
+            under_1_year: "Moins d'un an"
+            under_6_months: 'Moins de 6 mois'
+        any: Tous
+        include_ineligible: 'Afficher aussi les Shorts, lives et vidéos privées'
+        min_score: 'Score minimum'
+        min_score_option: '%score% et plus'
+        relaunch_state: 'Statut de relance'
+        reset: Réinitialiser
+        search: Recherche
+        search_placeholder: 'Titre ou description…'
+        sort: Tri
+        sort_by:
+            oldest: 'Plus anciennes'
+            recent: 'Plus récentes'
+            score: 'Score décroissant'
+            title: Titre
+            views: 'Plus vues'
+        state:
+            finished: 'Relance terminée'
+            none: 'Jamais relancée'
+            reverted: 'Revenue en arrière'
+            tracking: 'Suivi en cours'
+        submit: Filtrer
+    heading: Catalogue
+    impressions_notice:
+        body: "YouTube ne les expose que par rapports quotidiens, générés à partir du moment où la chaîne a été connectée, le %date%. Les premiers arrivent sous un à deux jours. D'ici là, les signaux « CTR faible » et « Impressions » sont neutralisés : ils ne comptent ni en bien ni en mal dans le score."
+        title: 'Les impressions de miniature arrivent bientôt'
+    pagination:
+        label: Pagination
+        next: Suivante
+        page: 'Page %page% sur %pages%'
+        previous: Précédente
+    stats:
+        scored: 'Vidéos scorées'
+        scored_hint: 'éligibles à une relance'
+        successful: 'Relances réussies'
+        successful_hint: '{0}aucune négative|{1}%total% négative|]1,Inf[%total% négatives'
+        synced: 'Vidéos synchronisées'
+        synced_hint: '%total% vidéos longues'
+        tracking: 'Relances en suivi'
+        tracking_hint: 'verdict à 14 et 28 jours'
+    status:
+        relaunched: Relancée
+        reverted: Annulée
+        tracking: Suivi
+    subheading:
+        filtered: '{0}Aucune vidéo ne correspond aux filtres|{1}%total% vidéo correspond aux filtres|]1,Inf[%total% vidéos correspondent aux filtres'
+        ranked: '{0}Aucune vidéo dans le classement|{1}%total% vidéo dans le classement|]1,Inf[%total% vidéos dans le classement'
+    table:
+        age: Âge
+        score: Score
+        signals: Signaux
+        status: Statut
+        thumbnail: Miniature
+        video: Vidéo
+        views: Vues
+    title: 'Catalogue — YoutubeBoost'
+common:
+    back: Retour
+    date:
+        day_time: 'd/m à H:i'
+        short: d/m/Y
+        short_time: 'd/m/Y à H:i'
+    delete: Supprimer
+    quota_units: '%count% u.'
+    save: Enregistrer
+job:
+    progress:
+        waiting: 'En attente du worker…'
+    step:
+        preparing: Préparation
+nav:
+    catalog: Catalogue
+    close_menu: 'Fermer le menu'
+    main: 'Navigation principale'
+    open_menu: 'Ouvrir le menu'
+    relaunches: Relances
+    settings: Réglages
+    sign_out: 'Se déconnecter'
+    theme: Thème
+    toggle_theme: 'Changer de thème'
+onboarding:
+    flash:
+        add_every_angle: 'Ajoutez au moins une photo de face, une de profil droit et une de profil gauche.'
+        completed: 'Tout est prêt. Lancez une première synchronisation du catalogue.'
+        connect_channel_first: "Connectez d'abord votre chaîne YouTube."
+    gemini_missing:
+        body: 'La connexion de la chaîne fonctionnera, mais aucune analyse ni aucune miniature ne pourra être générée tant que <code class="font-mono">GEMINI_API_KEY</code> n''est pas renseignée dans <code class="font-mono">.env.local</code>, puis rechargez la configuration avec <code class="font-mono">make reload</code> : un simple <code class="font-mono">restart</code> ne relit pas le fichier.'
+    google:
+        checks:
+            production: "L'application OAuth doit être « En production ». En statut « Test », Google fait expirer l'autorisation au bout de 7 jours."
+            redirect_uri: 'L''URI de redirection autorisée doit être exactement <code class="font-mono break-all">%uri%</code>.'
+            title: 'Deux réglages à vérifier dans Google Cloud'
+        connect: 'Connecter avec Google'
+        connected_badge: Connectée
+        connected_on: 'Connectée le %date%'
+        credentials_missing:
+            body: 'Renseignez <code class="font-mono">GOOGLE_CLIENT_ID</code>, <code class="font-mono">GOOGLE_CLIENT_SECRET</code> et <code class="font-mono">GOOGLE_REDIRECT_URI</code> dans votre fichier <code class="font-mono">.env.local</code>, puis rechargez cette page.'
+            title: 'Identifiants Google manquants'
+        description: 'YoutubeBoost lit vos statistiques et remplace vos miniatures en votre nom. Il ne touche jamais au titre ni à la description.'
+        reconnect: 'Reconnecter la chaîne'
+        title: 'Connecter votre chaîne'
+    heading: 'Bienvenue sur YoutubeBoost'
+    intro: "Trois étapes, une seule fois, et l'outil saura repérer les vidéos à relancer et dessiner des miniatures à votre image."
+    next_step: 'Étape suivante'
+    photos:
+        delete_aria: 'Supprimer la photo %label%'
+        description: "Gemini s'en sert pour que votre visage reste reconnaissable. Au minimum une photo de face, une de profil droit et une de profil gauche. Visage bien éclairé, net, sans lunettes de soleil."
+        files_help: 'JPEG, PNG ou WebP, 12 Mo maximum par fichier. Les images sont redimensionnées automatiquement.'
+        label_label: 'Étiquette (optionnelle)'
+        label_placeholder: 'Sourire, studio…'
+        missing_angles: '{1} Il manque encore un angle|]1,Inf[ Il manque encore %count% angles'
+        stored_count: '{1} 1 photo enregistrée|]1,Inf[ %count% photos enregistrées'
+        submit: 'Ajouter ces photos'
+        title: 'Vos photos de référence'
+    progress_label: Progression
+    steps:
+        google: 'Chaîne YouTube'
+        photos: 'Photos de référence'
+        style: 'Style de la chaîne'
+    style:
+        description: 'Ce texte est injecté dans chaque prompt. Plus il est précis, plus les miniatures ressemblent aux vôtres.'
+        field_label: 'Consignes de style'
+        finish: 'Terminer la configuration'
+        help: 'Palette, typographie, ton, éléments récurrents, choses à éviter. Vous pourrez le modifier à tout moment dans les réglages.'
+        placeholder: 'Palette : fond anthracite, accents jaunes.&#10;Typographie : grosse police condensée, majuscules, contour noir.&#10;Éléments récurrents : logo en bas à gauche, flèche rouge.&#10;À éviter : emojis, dégradés roses, texte sur plus de deux lignes.'
+        title: 'Le style de votre chaîne'
+    title: Bienvenue
+quota:
+    cost: '~%cost% u.'
+    label: Quota
+    tooltip:
+        endpoint_cost: '<code class="font-mono">%endpoint%</code> : %units% unités'
+        resets_at: 'Réinitialisation le %date% à %time% (heure du Pacifique).'
+        used_percent: '%percent% du quota quotidien utilisé'
+relaunch:
+    badge:
+        negative: Négative
+        negative_provisional: 'Négative (14 j)'
+        neutral: Neutre
+        neutral_provisional: 'Neutre (14 j)'
+        pending: 'En attente'
+        successful: Réussie
+        successful_provisional: 'Réussie (14 j)'
+    compare:
+        after: Après
+        before: Avant
+    error:
+        already_reverted: 'Cette relance a déjà été annulée.'
+        archive_missing: "L'ancienne miniature n'est plus disponible dans l'archive."
+        current_thumbnail_unavailable: "La miniature actuelle n'a pas pu être téléchargée, la relance est annulée pour ne pas perdre l'originale."
+        proposal_not_ready: "Cette proposition n'a pas encore d'image exploitable."
+        upload_refused: 'YouTube a refusé la nouvelle miniature : %reason%'
+    flash:
+        already_reverted: 'Cette relance a déjà été annulée.'
+        reverting: "Restauration de l'ancienne miniature en cours."
+    index:
+        applied_on: 'Appliquée le %date%'
+        detail: Détail
+        empty:
+            action: 'Ouvrir le catalogue'
+            description: 'Analysez une vidéo du catalogue, choisissez une miniature, appliquez-la : elle apparaîtra ici avec son verdict.'
+            title: "Aucune relance pour l'instant"
+        first_milestone_in: "{0} Premier jalon aujourd'hui.|{1} Premier jalon dans 1 jour.|]1,Inf[ Premier jalon dans %count% jours."
+        heading: Relances
+        reverted_on: 'Revenue en arrière le %date%'
+        stats:
+            negative: Négatives
+            neutral: Neutres
+            reverted: '{0} aucune annulée|{1} 1 annulée|]1,Inf[ %count% annulées'
+            successful: Réussies
+            total: Relances
+        subheading: "Ce qui a marché, ce qui n'a rien changé, ce qu'il faut annuler."
+        title: 'Relances — YoutubeBoost'
+    job:
+        apply:
+            done: 'Miniature appliquée le %date% à %time%'
+            gone: 'La proposition a été supprimée.'
+            step: 'Archivage de la miniature actuelle'
+        revert:
+            done: 'Ancienne miniature restaurée'
+            gone: 'La relance a été supprimée.'
+            step: "Restauration de l'ancienne miniature"
+    metric:
+        average_duration: 'Durée moyenne'
+        ctr: CTR
+        impressions: Impressions
+        impressions_per_day: 'Impressions / jour'
+        views_per_day: 'Vues / jour'
+    show:
+        alert:
+            description: "Remettre l'ancienne miniature est probablement le bon réflexe. Elle est archivée et prête à être restaurée."
+            title: 'Cette relance a fait baisser les résultats'
+        applied_alt: 'Nouvelle miniature'
+        applied_caption: 'Miniature appliquée'
+        archived_alt: 'Ancienne miniature'
+        archived_caption: 'Ancienne miniature (archivée)'
+        back_to_video: 'La vidéo'
+        compare:
+            title: 'Avant / après'
+        comparison:
+            description: 'Base 100 sur les %days% jours précédant le changement.'
+            empty: 'Pas encore de données après le changement.'
+            title: 'Comparaison chiffrée'
+        heading: 'Relance du %date%'
+        milestones:
+            days: '%days% jours'
+            description: "Le verdict à 14 jours est provisoire, celui à 28 jours est définitif. Un jalon n'est lu qu'une fois la période entièrement couverte par les données."
+            expected: 'Attendu le %date%'
+            snapshot: '%views% vues/jour sur %days% jours'
+            title: Jalons
+        revert:
+            action: "Revenir à l'ancienne"
+            confirm: "Remettre l'ancienne miniature sur YouTube ?"
+        reverted_on: 'Revenue en arrière le %date% à %time%'
+        title: 'Relance — %title%'
+        views:
+            empty: 'Aucune donnée Analytics pour cette vidéo.'
+            title: 'Vues de la vidéo'
+    status:
+        completed: Terminée
+        reverted: 'Revenue en arrière'
+        tracking: 'Suivi en cours'
+    verdict:
+        negative: 'Relance négative'
+        neutral: 'Effet neutre'
+        successful: 'Relance réussie'
+scoring:
+    score_badge:
+        incomplete: 'Score incomplet : il manque des données de déclin ou de CTR.'
+    signal_tooltip:
+        no_data: '%signal% : pas de donnée'
+        value: '%signal% : %value%'
+    signals_aria: 'Détail des signaux'
+    step:
+        baselines: 'Références de la chaîne'
+        scoring: 'Calcul des scores'
+security:
+    login:
+        description: 'Saisissez le mot de passe de cette instance.'
+        error_title: 'Connexion refusée'
+        password: 'Mot de passe'
+        password_hint: 'Le mot de passe est défini par la variable d''environnement <code class="rounded bg-muted px-1 py-0.5 font-mono">APP_PASSWORD</code>.'
+        submit: 'Se connecter'
+        tagline: 'Donnez une seconde vie à votre back catalogue.'
+        title: Connexion
+settings:
+    angle:
+        front: Face
+        left: 'Profil gauche'
+        lower:
+            front: face
+            left: 'profil gauche'
+            right: 'profil droit'
+        other: Autre
+        other_long: 'Autre angle ou expression'
+        right: 'Profil droit'
+    channel:
+        connect: 'Connecter une chaîne'
+        connected_on: 'Connectée le %date%'
+        disconnect: Déconnecter
+        disconnect_confirm: 'Déconnecter la chaîne ? Les vidéos et les relances sont conservées.'
+        last_synced_on: 'dernière synchro le %date%'
+        none:
+            body: 'URI de redirection à autoriser dans Google Cloud : <code class="font-mono break-all">%uri%</code>'
+            title: 'Aucune chaîne connectée'
+        reconnect: Reconnecter
+        reporting_active: "rapport d'impressions actif"
+        reporting_unavailable: "rapport d'impressions indisponible"
+        title: 'Chaîne YouTube et quota'
+    flash:
+        choose_photo: 'Choisissez au moins une photo.'
+        generation_saved: 'Modèles et seuils enregistrés.'
+        photo_deleted: 'Photo supprimée.'
+        photo_updated: 'Photo mise à jour.'
+        photos_added: '{1} 1 photo ajoutée.|]1,Inf[ %count% photos ajoutées.'
+        scoring_saved: 'Pondérations enregistrées. Les scores seront recalculés à la prochaine synchronisation.'
+        style_saved: 'Consignes de style enregistrées.'
+    gemini_missing:
+        body: 'Renseignez <code class="font-mono">GEMINI_API_KEY</code> dans <code class="font-mono">.env.local</code>, puis rechargez la configuration avec <code class="font-mono">make reload</code> : un simple <code class="font-mono">restart</code> ne relit pas le fichier.'
+        title: 'Clé Gemini manquante'
+    generation:
+        analytics_delay:
+            help: 'Une requête par vidéo : augmentez si YouTube demande de ralentir.'
+            label: 'Délai entre requêtes Analytics (ms)'
+        description: "Laissez un champ de modèle vide pour garder la valeur de l'environnement."
+        image_model:
+            label: 'Modèle Gemini image'
+        model_in_use: 'Actuellement utilisé : <code class="font-mono">%model%</code>'
+        ratio_syntax: 'syntaxe de ratio retenue : <code class="font-mono">%style%</code>'
+        text_model:
+            label: 'Modèle Gemini texte'
+        title: 'Modèles, rythme et verdicts'
+    photos:
+        add: Ajouter
+        angle_label: Angle
+        delete_confirm: 'Supprimer cette photo de référence ?'
+        description: "Toutes les photos sont envoyées à chaque génération, l'angle demandé en premier."
+        error:
+            too_heavy: '« %name% » dépasse %size% Mo.'
+            unreadable: "« %name% » n'est pas une image lisible."
+            unsupported_type: "« %name% » n'est ni un JPEG, ni un PNG, ni un WebP."
+            upload_failed: 'Le téléversement de « %name% » a échoué.'
+        files_label: Fichiers
+        missing_angles: 'Angles manquants'
+        title: 'Photos de référence'
+    quota:
+        resets_at: 'Réinitialisation le %date% (heure du Pacifique).'
+        title: 'Quota YouTube Data API'
+        today: "Aujourd'hui :"
+        unit_abbrev: u.
+        usage: '%used% / %limit% unités'
+    scoring:
+        cooldown:
+            help: 'Une vidéo relancée est laissée tranquille pendant ce délai.'
+            label: 'Période de suivi (jours)'
+        ctr_floor:
+            help: 'Part de la médiane en dessous de laquelle le signal sature à 1.'
+            label: 'Plancher de CTR'
+        description: "Les poids sont relatifs : leur somme n'a pas d'importance, seule leur proportion compte. Les signaux sans donnée sont neutralisés au lieu d'être comptés comme nuls."
+        min_age:
+            help: 'En dessous, une vidéo est encore dans sa vie normale.'
+            label: 'Âge minimum (jours)'
+        retention_target:
+            help: 'Multiple de la médiane qui vaut un point entier.'
+            label: 'Rétention pleine'
+        save: 'Enregistrer le scoring'
+        title: 'Scoring de relance'
+        warmup:
+            help: 'Le pic de sortie ne sert pas de référence.'
+            label: 'Période de lancement ignorée'
+        window:
+            help: 'Période « récente » comparée au passé.'
+            label: "Fenêtre d'analyse (jours)"
+    style:
+        description: 'Injectées dans chaque prompt, texte et image.'
+        save: 'Enregistrer les consignes'
+        title: 'Consignes de style'
+    title: Réglages
+    verdict:
+        ctr:
+            help: 'Un CTR qui tombe sous ce multiple suffit à conclure.'
+            label: 'Plancher de CTR'
+        floor:
+            help: 'En dessous, la relance est négative.'
+            label: 'Plancher de neutralité'
+        success:
+            help: 'Multiple de vues/jour à atteindre.'
+            label: 'Seuil de réussite'
+shared:
+    age:
+        days: '{1} 1 jour|]1,Inf[ %count% jours'
+        months: '{1} 1 mois|]1,Inf[ %count% mois'
+        today: "aujourd'hui"
+        years: '[0,2[ %value% an|[2,Inf[ %value% ans'
+        yesterday: hier
+    byte_size:
+        bytes: '%size% o'
+        kilobytes: '%size% Ko'
+        megabytes: '%size% Mo'
+    signal:
+        decline:
+            explanation: 'La vidéo fait nettement moins de vues par jour que pendant sa meilleure période.'
+            label: Déclin
+        impressions:
+            explanation: 'YouTube continue de la montrer : une nouvelle miniature peut encore être vue.'
+            label: Impressions
+        low_ctr:
+            explanation: 'YouTube la propose mais le taux de clic est inférieur à la médiane de la chaîne.'
+            label: 'CTR faible'
+        potential:
+            explanation: "La vidéo a déjà prouvé qu'elle intéresse, entre son audience et sa rétention."
+            label: Potentiel
+sync:
+    panel:
+        action: Synchroniser
+        data_until: 'Données arrêtées au %date%.'
+        heading: Synchronisation
+        last_sync: 'Dernière synchro le %date% à %time%.'
+        never: "Le catalogue n'a jamais été synchronisé."
+        running: 'En cours…'
+    report:
+        summary: '%total% vidéos synchronisées, %created% nouvelles, %scored% scores recalculés, données arrêtées au %date%'
+    step:
+        catalogue: 'Lecture du catalogue'
+        daily_stats: 'Statistiques quotidiennes'
+        reach: 'Impressions et CTR'
+        video_metadata: 'Métadonnées des vidéos'
+thumbnail:
+    already_applied: 'Déjà appliquée'
+    apply:
+        confirm: "Remplacer la miniature de cette vidéo sur YouTube ? L'ancienne sera archivée."
+    error:
+        no_image_returned: "Gemini a répondu sans image. Reformulez l'instruction ou réessayez."
+        no_reference_photo: 'Ajoutez au moins une photo de référence dans les réglages avant de générer des miniatures.'
+        provider_refused: "Gemini n'a pas pu générer l'image : %reason%"
+        text_instead_of_image: "Gemini a répondu du texte au lieu d'une image : « %answer% »"
+        text_instead_of_image_silent: "Gemini a répondu du texte au lieu d'une image, sans explication. Relancez la génération."
+    feed:
+        meta: '%views% vues · il y a %age%'
+        meta_with_channel: '%channel% · %views% vues · il y a %age%'
+    flash:
+        applying: "Application en cours : l'ancienne miniature est archivée avant l'écriture."
+        instruction_required: 'Décrivez la modification souhaitée.'
+        iterating: 'Nouvelle version en cours de génération.'
+        not_ready_yet: 'Attendez que cette miniature soit générée avant de la modifier.'
+        regenerated: 'Miniature %number% relancée.'
+    grid:
+        angle:
+            front: face
+            left: 'profil gauche'
+            other: libre
+            right: 'profil droit'
+        angle_line: 'Expression : %expression% · angle : %angle%'
+        applied_badge: Appliquée
+        apply: Appliquer
+        applying: Application…
+        compare: Comparer
+        download_label: 'Télécharger le PNG'
+        file_info: 'PNG 1280×720 · %size%'
+        iterate_label: 'Modifier cette miniature'
+        iterate_placeholder: 'Agrandis le texte, fond plus sombre…'
+        ready_count: "{0} Aucune des %total% miniatures n'est prête.|{1} 1 sur %total% prête.|]1,Inf[ %count% sur %total% prêtes."
+        regenerate_all: 'Tout régénérer'
+        retry: Réessayer
+        save_prompt: 'Enregistrer le prompt'
+        show_prompt: 'Voir et modifier le prompt'
+        streaming: 'Les images arrivent au fur et à mesure.'
+        title: 'Miniatures proposées'
+    job:
+        done: 'Miniature %number% générée'
+        failed: 'Miniature %number% en échec : %error%'
+        gone: 'La proposition a été supprimée.'
+        step: 'Miniature %number%'
+    preview:
+        apply: 'Appliquer sur YouTube'
+        back: 'Retour à la vidéo'
+        compare:
+            description: "La miniature en ligne aujourd'hui, face à la proposition %number%."
+            title: 'Avant / après'
+        current_alt: 'Miniature actuelle'
+        current_caption: Actuelle
+        feed:
+            default_channel: 'Ma chaîne'
+            description: "Le vrai test : la miniature doit rester lisible à la taille réelle d'une carte."
+            desktop: Bureau
+            mobile: Mobile
+            sidebar: Suggestions
+            title: 'Dans un flux YouTube'
+        heading: 'Comparer et prévisualiser'
+        history:
+            description: 'Chaque itération garde la précédente.'
+            title: 'Historique des versions'
+            version: 'Version %number%'
+        prompt:
+            title: 'Prompt envoyé à Gemini'
+        title: 'Comparaison — %title%'
+    proposal_number: 'Proposition %number%'
+    quoted_instruction: '« %instruction% »'
+video:
+    action:
+        watch_on_youtube: 'Voir sur YouTube'
+    breakdown:
+        description: 'Quatre signaux pondérés, calculés sur les %days% derniers jours de données.'
+        description_until: "Quatre signaux pondérés, calculés sur les %days% derniers jours de données (jusqu'au %date%)."
+        heading: 'Pourquoi ce score'
+    chart:
+        after: Après
+        before: 'Avant (base 100)'
+        empty: 'Aucune donnée Analytics pour cette vidéo.'
+        heading: 'Vues depuis la publication'
+        no_history: "Pas encore assez d'historique pour comparer à une meilleure période."
+        retained: "La vidéo réalise aujourd'hui %share% de sa meilleure période."
+        trend: 'Moyenne mobile 28 jours'
+        views_per_day: 'Vues par jour'
+        views_per_week: 'Vues par semaine'
+    flash:
+        type_corrected: 'Type corrigé. Le score sera mis à jour à la prochaine synchronisation.'
+        unknown_type: 'Type de vidéo inconnu.'
+    meta:
+        published: 'publiée il y a %age%'
+        views: '{0}aucune vue|{1}%total% vue|]1,Inf[%total% vues'
+    page_title: '%title% — YoutubeBoost'
+    relaunches:
+        applied_on: 'Appliquée le %date% à %time%'
+        heading: 'Relances de cette vidéo'
+    score:
+        computed_on: 'Calculé le %date%.'
+        interesting: 'candidate intéressante'
+        label: 'Score de relance'
+        low: 'peu prioritaire'
+        out: 'hors classement'
+        priority: 'à relancer en priorité'
+    signal:
+        no_data: 'pas de donnée'
+        out_of_100: '%value% / 100'
+    stats:
+        best_period: 'Meilleure période'
+        ctr: CTR
+        impressions: Impressions
+        views_per_day: 'Vues / jour'
+    thumbnail:
+        alt: 'Miniature actuelle'
+        as_shown: "Telle qu'elle apparaît aujourd'hui dans les flux."
+        auto_generated: 'Miniature générée automatiquement par YouTube.'
+        heading: 'Miniature actuelle'
+    transcript:
+        heading: Transcript
+        meta: '%source% (%language%) · %characters% caractères · récupéré le %date%'
+        show: 'Afficher le transcript'
+        source:
+            automatic: 'Sous-titres automatiques'
+            manual: 'Sous-titres déposés à la main'
+    type:
+        live: Live
+        short: Short
+        standard: 'Vidéo longue'
+    type_source:
+        analytics: 'confirmé par YouTube'
+        detected: 'Type détecté : <strong>%type%</strong> (%source%)'
+        heuristic: heuristique
+        manual: 'forcé à la main'
+        submit: Corriger
+        unknown: 'non déterminé'
+    visibility:
+        private: Privée
+        public: Publique
+        unlisted: 'Non répertoriée'
+youtube:
+    connection_expired:
+        body: "Google refuse l'autorisation enregistrée. Si cela se reproduit chaque semaine, c'est que l'application OAuth est restée en statut « Test » dans la console Google Cloud."
+        title: 'La connexion à YouTube a expiré'
+    error:
+        authorisation_expired: 'La connexion à YouTube a expiré (%reason%). Reconnectez la chaîne depuis les réglages.'
+        call_failed: "YouTube a refusé l'appel : %message%"
+        generic: "L'appel à YouTube a échoué."
+        no_channel: 'Le compte Google connecté ne possède aucune chaîne YouTube.'
+        no_refresh_token: "Google n'a pas renvoyé de refresh token. Révoquez l'accès de l'application dans votre compte Google puis recommencez."
+        no_uploads_playlist: 'La playlist des mises en ligne de la chaîne est introuvable.'
+        not_connected: "Aucune chaîne YouTube n'est connectée."
+        quota_exhausted: "Le quota quotidien de l'API YouTube est épuisé. Réessayez après la réinitialisation."
+        quota_for_cost: "Cette opération coûte %cost% unités de quota mais il n'en reste que %remaining% aujourd'hui. Le quota est réinitialisé le %date%."
+        rate_limited: "L'API YouTube a demandé de ralentir (%reason%)."
+        reporting_job_failed: "La création du rapport d'impressions a échoué."
+        reporting_unreadable: "Le rapport d'impressions téléchargé est illisible."
+        token_refused: 'Google a refusé la demande de jeton : %error% %description%'
+        token_unreachable: 'Impossible de contacter Google pour obtenir un jeton.'
+        unexpected_response: "Réponse inattendue de l'API Google."
+        unreachable: 'Impossible de contacter Google.'
+    flash:
+        authorisation_refused: "Google a refusé l'autorisation (%error%)."
+        connected: 'Chaîne « %name% » connectée.'
+        credentials_missing: 'Renseignez GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET et GOOGLE_REDIRECT_URI avant de connecter la chaîne.'
+        disconnected: 'Chaîne YouTube déconnectée.'
+        incomplete_response: 'La réponse de Google est incomplète, recommencez la connexion.'
+        state_mismatch: 'La vérification anti-CSRF de la connexion Google a échoué.'
+    reconnect: Reconnecter

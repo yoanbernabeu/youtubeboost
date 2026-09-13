@@ -1,0 +1,19 @@
+# Generated images live outside public/ and are served by a controller, so that
+# nothing is exposed without going through the firewall.
+#
+# %kernel.share_dir% is var/share/<env>, which is the directory the Docker volume
+# is mounted on.
+flysystem:
+    storages:
+        thumbnails.storage:
+            adapter: 'local'
+            options:
+                directory: '%kernel.share_dir%/thumbnails'
+        references.storage:
+            adapter: 'local'
+            options:
+                directory: '%kernel.share_dir%/reference-photos'
+        archive.storage:
+            adapter: 'local'
+            options:
+                directory: '%kernel.share_dir%/archived-thumbnails'

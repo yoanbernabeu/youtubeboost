@@ -1,0 +1,52 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: async
+                    # How long a message stays locked after the worker that took
+                    # it stopped refreshing it. `--keepalive` refreshes it every
+                    # few seconds while a handler is alive, so this only ever
+                    # applies to a worker that died: a short value means a crash
+                    # or a restart costs minutes, not an hour.
+                    redeliver_timeout: 300
+                    auto_setup: false
+                    use_notify: true
+                    # Keeps a graceful stop well inside the container grace period.
+                    get_notify_timeout: 5000
+                retry_strategy:
+                    max_retries: 3
+                    delay: 5000
+                    multiplier: 3
+                    max_delay: 120000
+                    jitter: 0.2
+
+            failed:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: failed
+                    auto_setup: false
+
+        routing:
+            App\Catalog\Message\SynchronizeCatalog: async
+            App\Analysis\Message\AnalyzeVideo: async
+            App\Thumbnail\Message\GenerateThumbnail: async
+            App\Thumbnail\Message\IterateThumbnail: async
+            App\Relaunch\Message\ApplyThumbnail: async
+            App\Relaunch\Message\RevertThumbnail: async
+
+        buses:
+            messenger.bus.default:
+                middleware:
+                    # A worker idling for hours keeps a dead socket otherwise.
+                    - doctrine_ping_connection
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                async: 'in-memory://'
+                failed: 'in-memory://'

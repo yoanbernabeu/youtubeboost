@@ -1,0 +1,14 @@
+{# @prop open boolean Whether the collapsible is open by default. #}
+{# @block content The collapsible content, typically a `Collapsible:Trigger` and a `Collapsible:Content`. #}
+{%- props open = false -%}
+{%- do provide('collapsible.open', open) -%}
+<div
+    data-slot="collapsible"
+    data-collapsible-open-value="{{ open ? 'true' : 'false' }}"
+    data-state="{{ open ? 'open' : 'closed' }}"
+    {{ attributes.defaults({
+        'data-controller': 'collapsible',
+    }) }}
+>
+    {%- block content %}{% endblock -%}
+</div>

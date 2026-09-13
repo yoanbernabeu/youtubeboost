@@ -1,0 +1,11 @@
+{# @prop variant 'legend'|'label' The text size variant. #}
+{# @block content The legend text for a fieldset. #}
+{%- props variant = 'legend' -%}
+<legend
+    data-slot="field-legend"
+    data-variant="{{ variant }}"
+    class="{{ ('mb-1.5 font-medium data-[variant=label]:text-sm data-[variant=legend]:text-base ' ~ attributes.render('class'))|tailwind_merge }}"
+    {{ attributes }}
+>
+    {%- block content %}{% endblock -%}
+</legend>

@@ -1,0 +1,45 @@
+{% set job = this.job %}
+{% set running = this.running %}
+{% set channel = this.channel %}
+{% set quotaCost = this.estimatedQuotaCost %}
+
+<div {{ attributes }} {% if running %}data-poll="delay(1500)|$render"{% endif %}>
+    <twig:Card>
+        <twig:Card:Header>
+            <twig:Card:Title class="flex items-center gap-2">
+                <twig:ux:icon name="lucide:refresh-cw" class="size-4 text-muted-foreground" />
+                {{ 'sync.panel.heading'|trans }}
+            </twig:Card:Title>
+            <twig:Card:Description>
+                {% if channel and channel.lastSyncedAt %}
+                    {{ 'sync.panel.last_sync'|trans({'%date%': channel.lastSyncedAt|date('d/m/Y'), '%time%': channel.lastSyncedAt|date('H:i')}) }}
+                    {% if channel.analyticsAvailableUntil %}
+                        {{ 'sync.panel.data_until'|trans({'%date%': channel.analyticsAvailableUntil|date('d/m/Y')}) }}
+                    {% endif %}
+                {% else %}
+                    {{ 'sync.panel.never'|trans }}
+                {% endif %}
+            </twig:Card:Description>
+            <twig:Card:Action>
+                {% if running %}
+                    <twig:Button disabled="disabled">
+                        <twig:ux:icon name="lucide:loader-circle" class="animate-spin" data-icon="inline-start" />
+                        {{ 'sync.panel.running'|trans }}
+                    </twig:Button>
+                {% else %}
+                    <twig:Button data-action="live#action" data-live-action-param="synchronize">
+                        <twig:ux:icon name="lucide:refresh-cw" data-icon="inline-start" />
+                        {{ 'sync.panel.action'|trans }}
+                        <span class="ml-1 rounded bg-primary-foreground/15 px-1 text-[0.7rem] font-normal tabular">{{ 'quota.cost'|trans({'%cost%': quotaCost}) }}</span>
+                    </twig:Button>
+                {% endif %}
+            </twig:Card:Action>
+        </twig:Card:Header>
+
+        {% if job %}
+            <twig:Card:Content>
+                <twig:JobProgress :job="job" />
+            </twig:Card:Content>
+        {% endif %}
+    </twig:Card>
+</div>

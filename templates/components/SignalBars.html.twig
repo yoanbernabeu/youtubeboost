@@ -1,0 +1,17 @@
+{# @prop signals array Map of signal name to value between 0 and 1, or null. #}
+{%- props signals = {} -%}
+<div class="flex items-end gap-1" role="img" aria-label="{{ 'scoring.signals_aria'|trans }}">
+    {% for name, value in signals %}
+        <span class="group/bar relative flex h-6 w-2 items-end overflow-hidden rounded-sm bg-muted"
+              title="{{ value is null
+                  ? 'scoring.signal_tooltip.no_data'|trans({'%signal%': signal_label(name)})
+                  : 'scoring.signal_tooltip.value'|trans({'%signal%': signal_label(name), '%value%': (value * 100)|percent(0)}) }}">
+            {% if value is not null %}
+                <span class="w-full rounded-sm {{ value >= 0.66 ? 'bg-hot' : (value >= 0.33 ? 'bg-warm' : 'bg-muted-foreground/50') }}"
+                      style="height: {{ max(8, (value * 100)|round) }}%"></span>
+            {% else %}
+                <span class="w-full border-t border-dashed border-muted-foreground/50" style="height: 1px"></span>
+            {% endif %}
+        </span>
+    {% endfor %}
+</div>

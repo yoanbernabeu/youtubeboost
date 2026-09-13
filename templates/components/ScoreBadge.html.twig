@@ -1,0 +1,18 @@
+{# @prop score int The relaunch score, 0 to 100. #}
+{# @prop reliable boolean Whether both essential signals had data. #}
+{# @prop size 'default'|'lg' #}
+{%- props score = 0, reliable = true, size = 'default' -%}
+{%- set tone = score_tone(score) -%}
+{%- set classes = {
+    hot: 'bg-hot/15 text-hot ring-hot/25 dark:bg-hot/20',
+    warm: 'bg-warm/20 text-warm-foreground ring-warm/30 dark:text-warm',
+    muted: 'bg-muted text-muted-foreground ring-border',
+    cold: 'bg-muted/60 text-muted-foreground ring-border',
+}[tone] -%}
+<span class="{{ ('inline-flex items-center gap-1 rounded-lg font-semibold tabular ring-1 ring-inset ' ~ classes ~ (size == 'lg' ? ' px-2.5 py-1 text-lg' : ' px-2 py-0.5 text-sm') ~ ' ' ~ attributes.render('class'))|tailwind_merge }}"
+      {{ attributes.without('class') }}>
+    {{ score }}
+    {%- if not reliable %}
+        <twig:ux:icon name="lucide:circle-alert" class="size-3 opacity-70" title="{{ 'scoring.score_badge.incomplete'|trans }}" />
+    {%- endif %}
+</span>

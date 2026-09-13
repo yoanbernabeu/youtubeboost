@@ -1,0 +1,49 @@
+{# @prop image string URL of the thumbnail to show. #}
+{# @prop title string Video title. #}
+{# @prop channel string Channel name. #}
+{# @prop views string Already formatted view count. #}
+{# @prop age string Already formatted age. #}
+{# @prop duration string Already formatted duration. #}
+{# @prop variant 'mobile'|'desktop'|'sidebar' Which YouTube surface to imitate. #}
+{%- props image = '', title = '', channel = '', views = '', age = '', duration = '', variant = 'desktop' -%}
+
+{% set thumbnail %}
+    <span class="relative block overflow-hidden rounded-xl bg-muted">
+        <img src="{{ image }}" alt="" class="aspect-video w-full object-cover">
+        <span class="absolute bottom-1 right-1 rounded bg-black/80 px-1 py-0.5 text-[0.65rem] font-medium text-white tabular">{{ duration }}</span>
+    </span>
+{% endset %}
+
+{% if variant == 'sidebar' %}
+    <div class="flex gap-2">
+        <div class="w-40 shrink-0">{{ thumbnail }}</div>
+        <div class="min-w-0">
+            <p class="line-clamp-2 text-sm font-medium leading-snug">{{ title }}</p>
+            <p class="mt-1 truncate text-xs text-muted-foreground">{{ channel }}</p>
+            <p class="truncate text-xs text-muted-foreground">{{ 'thumbnail.feed.meta'|trans({'%views%': views, '%age%': age}) }}</p>
+        </div>
+    </div>
+{% elseif variant == 'mobile' %}
+    <div class="mx-auto w-full max-w-[22rem]">
+        {{ thumbnail }}
+        <div class="mt-2 flex gap-2.5 px-1">
+            <span class="size-9 shrink-0 rounded-full bg-muted"></span>
+            <div class="min-w-0">
+                <p class="line-clamp-2 text-sm font-medium leading-snug">{{ title }}</p>
+                <p class="mt-0.5 truncate text-xs text-muted-foreground">{{ 'thumbnail.feed.meta_with_channel'|trans({'%channel%': channel, '%views%': views, '%age%': age}) }}</p>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="w-full max-w-[19rem]">
+        {{ thumbnail }}
+        <div class="mt-2 flex gap-2.5">
+            <span class="size-8 shrink-0 rounded-full bg-muted"></span>
+            <div class="min-w-0">
+                <p class="line-clamp-2 text-sm font-medium leading-snug">{{ title }}</p>
+                <p class="mt-0.5 truncate text-xs text-muted-foreground">{{ channel }}</p>
+                <p class="truncate text-xs text-muted-foreground">{{ 'thumbnail.feed.meta'|trans({'%views%': views, '%age%': age}) }}</p>
+            </div>
+        </div>
+    </div>
+{% endif %}

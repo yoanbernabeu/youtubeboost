@@ -1,0 +1,13 @@
+{# @prop label string #}
+{# @prop value string #}
+{# @prop icon string|null #}
+{# @prop hint string|null #}
+{%- props label = '', value = '—', icon = null, hint = null -%}
+<div class="{{ ('rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10 ' ~ attributes.render('class'))|tailwind_merge }}" {{ attributes.without('class') }}>
+    <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+        {% if icon %}<twig:ux:icon name="{{ icon }}" class="size-3.5" />{% endif %}
+        {{ label }}
+    </div>
+    <div class="mt-1 text-2xl font-semibold tracking-tight tabular">{{ value }}</div>
+    {% if hint %}<div class="mt-0.5 text-xs text-muted-foreground">{{ hint }}</div>{% endif %}
+</div>

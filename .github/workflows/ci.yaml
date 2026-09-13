@@ -1,0 +1,209 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Lets the release workflow re-run every check on the tag before publishing.
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PHP_VERSION: '8.4'
+  PHP_EXTENSIONS: ctype, gd, iconv, intl, pdo_pgsql, zip
+  # Bump together with the version pinned in the "language-tools" job.
+  SYMFONY_LSP_VERSION: v0.20.2
+
+jobs:
+  quality:
+    name: Style, types and linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ runner.os }}-${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-${{ env.PHP_VERSION }}-
+
+      - name: Validate composer.json against composer.lock
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Check for known vulnerabilities in dependencies
+        run: composer audit
+
+      - name: Check the code style
+        run: vendor/bin/php-cs-fixer check --diff
+
+      - name: Warm the container so PHPStan can read it
+        run: php bin/console cache:warmup --env=dev
+
+      - name: Static analysis
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+      - name: Lint the templates, the configuration and the catalogues
+        run: |
+          php bin/console lint:twig templates/
+          php bin/console lint:yaml config/ translations/
+          php bin/console lint:container
+
+  language-tools:
+    name: Symfony Language Tools
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ runner.os }}-${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-${{ env.PHP_VERSION }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # Pinned rather than installed through the Symfony CLI: a new release must
+      # not turn a green branch red on its own, and the checksum is published.
+      - name: Install symfony-lsp ${{ env.SYMFONY_LSP_VERSION }}
+        run: |
+          set -euo pipefail
+          archive="symfony-lsp-${SYMFONY_LSP_VERSION}-linux-x64.tar.gz"
+          base="https://github.com/symfony/language-tools/releases/download/${SYMFONY_LSP_VERSION}"
+          curl -sSfL -o "$archive" "$base/$archive"
+          curl -sSfL -o SHA256SUMS "$base/SHA256SUMS"
+          grep " $archive\$" SHA256SUMS | sha256sum --check --strict -
+          tar xzf "$archive"
+          echo "$PWD" >> "$GITHUB_PATH"
+
+      # Resolves every route, service, parameter, template, Twig component and
+      # translation key. This is what catches a key used in a template but
+      # missing from translations/messages.*.yaml.
+      - name: Check routes, services, templates and translation keys
+        run: symfony-lsp check --format=github
+
+  tests:
+    name: Test suite
+    runs-on: ubuntu-latest
+
+    services:
+      database:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: '!ChangeMe!'
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app -d app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ runner.os }}-${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-${{ env.PHP_VERSION }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # The test environment appends "_test" to the database name, so this never
+      # touches the "app" database the service container also holds.
+      - name: Prepare the test database
+        run: |
+          php bin/console --env=test doctrine:database:create --if-not-exists
+          php bin/console --env=test doctrine:schema:create
+
+      - name: Run the test suite
+        run: php bin/phpunit
+
+      - name: Check that the entities and the schema still agree
+        run: php bin/console doctrine:schema:validate --skip-sync
+
+  secrets:
+    name: Secret scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gitleaks walks the history, not just the working tree.
+          fetch-depth: 0
+
+      - name: Scan the working tree and the history for credentials
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            zricethezav/gitleaks:v8.21.2 detect \
+            --source=/repo --config=/repo/.gitleaks.toml \
+            --redact --verbose --no-banner
+
+  docker:
+    name: Production image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Both files are what a user copies to install the tool; a typo here breaks
+      # every install, and nothing else in the pipeline would notice.
+      - name: Validate the Compose files
+        run: |
+          cp .env.example .env.local
+          docker compose -f compose.yaml -f compose.prod.yaml config --quiet
+          docker compose -f compose.standalone.yaml config --quiet
+          rm .env.local
+
+      - name: Build the production image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: frankenphp_prod
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

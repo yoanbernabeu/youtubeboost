@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'security.login.title'|trans }} — YoutubeBoost{% endblock %}
+
+{% block body %}
+<div class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12"
+     data-controller="theme">
+    {# Soft brand glow, purely decorative. #}
+    <div class="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-[48rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" aria-hidden="true"></div>
+
+    <div class="w-full max-w-sm">
+        <div class="mb-8 flex flex-col items-center gap-3 text-center">
+            <div class="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+                <twig:ux:icon name="lucide:play" class="size-6" />
+            </div>
+            <div>
+                <h1 class="text-2xl font-semibold tracking-tight">YoutubeBoost</h1>
+                <p class="mt-1 text-sm text-muted-foreground">{{ 'security.login.tagline'|trans }}</p>
+            </div>
+        </div>
+
+        <twig:Card>
+            <twig:Card:Header>
+                <twig:Card:Title>{{ 'security.login.title'|trans }}</twig:Card:Title>
+                <twig:Card:Description>{{ 'security.login.description'|trans }}</twig:Card:Description>
+            </twig:Card:Header>
+
+            <twig:Card:Content>
+                {% if error %}
+                    <twig:Alert variant="destructive" class="mb-4">
+                        <twig:ux:icon name="lucide:circle-alert" />
+                        <twig:Alert:Title>{{ 'security.login.error_title'|trans }}</twig:Alert:Title>
+                        <twig:Alert:Description>{{ error.messageKey|trans(error.messageData, 'security') }}</twig:Alert:Description>
+                    </twig:Alert>
+                {% endif %}
+
+                <form method="post" action="{{ path('app_login') }}" class="flex flex-col gap-4" data-controller="csrf-protection">
+                    <input type="hidden" name="_username" value="{{ username }}">
+
+                    <twig:Field>
+                        <twig:Label for="password">{{ 'security.login.password'|trans }}</twig:Label>
+                        <twig:Input
+                            type="password"
+                            id="password"
+                            name="_password"
+                            autocomplete="current-password"
+                            required
+                            autofocus
+                            placeholder="••••••••••"
+                        />
+                    </twig:Field>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <twig:Button type="submit" size="lg" class="w-full">
+                        {{ 'security.login.submit'|trans }}
+                        <twig:ux:icon name="lucide:arrow-right" data-icon="inline-end" />
+                    </twig:Button>
+                </form>
+            </twig:Card:Content>
+        </twig:Card>
+
+        <p class="mt-6 text-center text-xs text-muted-foreground">
+            {{ 'security.login.password_hint'|trans|raw }}
+        </p>
+    </div>
+</div>
+{% endblock %}

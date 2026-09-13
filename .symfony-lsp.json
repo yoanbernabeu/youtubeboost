@@ -1,0 +1,11 @@
+{
+    "version": 1,
+    "environment": "dev",
+    "translationDiagnostics": true,
+    "excludePaths": [
+        "var/",
+        "vendor/",
+        "public/assets/",
+        "assets/vendor/"
+    ]
+}
