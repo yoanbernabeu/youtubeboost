@@ -200,7 +200,7 @@ jobs:
           rm .env.local
 
       - name: Build the production image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: frankenphp_prod
