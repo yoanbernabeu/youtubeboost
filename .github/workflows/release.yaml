@@ -72,7 +72,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Attest what was built
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: ${{ env.IMAGE }}
           subject-digest: ${{ steps.build.outputs.digest }}
